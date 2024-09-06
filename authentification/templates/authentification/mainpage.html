@@ -116,7 +116,7 @@
     });
 
     // Charger et appliquer le fichier GeoJSON
-    fetch('/home/cedric/Code/IDS/idsproject/authentification/templates/authentification/concessions_PAK.geojson') // Charger le fichier GeoJSON
+    fetch('static/authentification/concessions_PAK.geojson') // Charger le fichier GeoJSON
         .then(response => response.json())
         .then(data => {
             // Ajouter le GeoJSON sur la carte
