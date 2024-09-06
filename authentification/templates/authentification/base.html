@@ -14,6 +14,19 @@
 </head>
 
 <body>
+    <header>
+        <div class="logo">
+            <img src=" {% static 'authentification/logo.png' %} " alt="Logo">
+        </div>
+
+        {% block header %}
+
+            <h1>Hi, welcome back!</h1>
+            <p>First time here? <span class="text-white"><a href="{% url 'authentification:register' %}" class="text-white">Create an account</a></span></p>
+
+        {% endblock %}
+
+    </header>
     {% block content %}{% endblock %}
 </body>
 
