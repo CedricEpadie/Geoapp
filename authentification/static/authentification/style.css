@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
 body {
-    background-color: #1E1E20;
-    color: #717171;
+    background: radial-gradient(circle, rgba(0,0,0,1) 0%, rgba(36,36,36,1) 100%);
+    color: #00ffc8;
     font-family: Inter;
     margin: 0;
     text-align: center;
@@ -13,26 +13,27 @@ body {
     align-items: center;
     position: relative;
 }
-body::after,
 body::before {
-    position: absolute;
-    width: 200px;
-    height: 200px;
     content: '';
-    background-color: #717171;
+    position: fixed;
     top: 0;
-    right: 0;
-    border-radius: 10px 30px 600px 100px;
-    filter: blur(100px);
-    pointer-events: none;
-}
-body::after {
-    top: unset;
-    right: unset;
-    bottom: 0;
     left: 0;
-    border-radius: 100px 30px 600px 100px;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, #00ffc8, #0d7377, #212121);
+    filter: blur(150px);
+    z-index: -1;
+    animation: rotate 10s infinite linear;
 }
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 * {
     padding: 0;
     margin: 0;
@@ -145,8 +146,4 @@ input:invalid:not(:placeholder-shown) + p {
 input:invalid ~ button[type="submit"] {
     opacity: .6;
     pointer-events: none;
-}
-
-.cedric {
-    background-color: #1E1E20;
 }
