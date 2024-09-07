@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -95,8 +97,62 @@
             box-shadow: 0px 0px 10px #00ffc8;
         }
 
-        .bi {
+        .option {
             margin-right: 8px;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .header details {
+            position: relative;
+        }
+
+        .header details ul {
+            position: absolute;
+            right: 100%;
+            top: 0%;
+            transform: translateX(0%);
+            list-style: none;
+            width: 150px;
+            background-color: #2a2a2c;
+            border-radius: 5px;
+            padding: 0;
+            margin: 0;
+            margin-right: 5px;
+        }
+        
+        .header details ul li {
+            padding: 10px 0;
+            cursor: pointer;
+            text-align: center;
+            width: 100%; /* Les li prennent toute la largeur du ul */
+            display: block;
+            color: #fff;
+        }
+        
+        .header details ul li a {
+            color: #fff;
+            text-decoration: none;
+            list-style: none;
+        }
+                
+        .header details ul li:hover {
+            box-shadow: 0px 0px 10px #00ffc8;
+        }
+
+        .header details summary {
+            list-style: none;
+        }
+
+        .header details summary i {
+            font-size: 30px;
+            color: #00ffc8;
         }
 
         @media (max-width: 768px) {
@@ -111,15 +167,30 @@
 <body>
 
     <div class="container-fluid">
-        <h1 class="text-center mb-4">GeoApp</h1>
+        <div class="header">
+            <h1 class="text-center mb-4">GeoApp</h1>
+
+            <nav>
+                <details>
+                    <summary>
+                        <i class="bi bi-person"></i>
+                    </summary>
+                    <ul>
+                        <li>Profil</li>
+                        <li><a href="{% url 'authentification:logout' %}">Sign Out</a></li>
+                    </ul>
+                    
+                </details>
+            </nav>
+        </div>
 
         <!-- Boutons de contrôle pour la carte -->
         <div id="controls">
             <button id="resetBtn" class="btn btn-danger">
-                <i class="bi bi-x-circle"></i> Réinitialiser la carte
+                <i class="option bi bi-x-circle"></i> Réinitialiser la carte
             </button>
             <button id="centerBtn" class="btn btn-primary">
-                <i class="bi bi-geo-alt"></i> Recentrer sur Kribi
+                <i class="option bi bi-geo-alt"></i> Recentrer sur Kribi
             </button>
         </div>
 
