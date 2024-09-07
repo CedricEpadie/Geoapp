@@ -45,6 +45,7 @@ def user_login(request):
         
         if user is not None:
             login(request, user)
+            request.session['username'] = user.username
             return redirect('authentification:index')
         else:
             messages.error(request, "Nom d'utilisateur ou mot de passe incorrect")
@@ -56,6 +57,23 @@ def user_logout(request):
     return redirect('authentification:login')
 
 def edit_profil(request):
+    if request.method == 'POST':
+        first_name = request.POST.get('name')
+        last_name = request.POST.get('surname')
+        email = request.POST.get('email')
+        username = request.POST.get('username')
+        profession = request.POST.get('profession')
+        
+        user = CustomUser.objects.get(username=request.session.get('username'))
+        user.first_name = first_name
+        user.last_name = last_name
+        user.email = email
+        user.username = username
+        user.profession = profession
+        
+        request.session['username'] = user.username
+        
+        user.save()
     return render(request, 'authentification/edit.html')
 
 @login_required
