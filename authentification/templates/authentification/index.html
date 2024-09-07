@@ -1,31 +1,34 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoApp - Carte Futuriste</title>
+    <title>Carte Interactive de Kribi</title>
     <!-- Intégration de Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Ajout d'icônes Bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
         body {
-            background: radial-gradient(circle, rgba(0,0,0,1) 0%, rgba(36,36,36,1) 100%);
+            background: radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(36, 36, 36, 1) 100%);
             font-family: 'Orbitron', sans-serif;
             color: #e0e0e0;
-            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
         h1, h3 {
             color: #00ffc8;
         }
 
-        /* Animation arrière-plan futuriste */
         body::before {
             content: '';
             position: fixed;
@@ -48,8 +51,22 @@
             }
         }
 
+        #controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .container-fluid {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+
         #map {
-            height: 600px;
+            height: 450px;
             width: 100%;
             border: 2px solid #00ffc8;
             border-radius: 10px;
@@ -62,6 +79,7 @@
             border: 1px solid #444;
             border-radius: 8px;
             color: #fff;
+            min-height: 300px;
         }
 
         .btn {
@@ -81,50 +99,60 @@
             margin-right: 8px;
         }
 
-        /* Animation pour les boutons */
-        #controls .btn {
-            transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
+        @media (max-width: 768px) {
+            #info {
+                min-height: 200px;
+                margin-top: 20px;
+            }
         }
     </style>
 </head>
 
-<body class="container">
+<body>
 
-    <h1 class="my-4 text-center">GeoApp - Carte Futuriste</h1>
+    <div class="container-fluid">
+        <h1 class="text-center mb-4">GeoApp</h1>
 
-    <!-- Boutons de contrôle pour la carte -->
-    <div id="controls" class="d-flex justify-content-between mb-4">
-        <button id="resetBtn" class="btn btn-danger">
-            <i class="bi bi-x-circle"></i> Réinitialiser la carte
-        </button>
-        <button id="centerBtn" class="btn btn-primary">
-            <i class="bi bi-geo-alt"></i> Recentrer sur Kribi
-        </button>
+        <!-- Boutons de contrôle pour la carte -->
+        <div id="controls">
+            <button id="resetBtn" class="btn btn-danger">
+                <i class="bi bi-x-circle"></i> Réinitialiser la carte
+            </button>
+            <button id="centerBtn" class="btn btn-primary">
+                <i class="bi bi-geo-alt"></i> Recentrer sur Kribi
+            </button>
+        </div>
+
+        <div class="row">
+            <!-- Informations sur les points, distances et surface -->
+            <div class="col-md-4">
+                <div id="info">
+                    <h3>Informations</h3>
+                    <p><strong>Coordonnées du point ajouté:</strong> <span id="pointCoords">Aucun point ajouté</span></p>
+                    <p><strong>Distance totale de la ligne tracée:</strong> <span id="lineDistance">0 km</span></p>
+                    <p><strong>Superficie du polygone:</strong> <span id="polygonArea">0 Km²</span></p>
+                    <p><strong>Périmètre du polygone:</strong> <span id="polygonPerimeter">0 Km</span></p>
+                </div>
+            </div>
+
+            <!-- Section pour afficher la carte -->
+            <div class="col-md-8">
+                <div id="map"></div>
+            </div>
+        </div>
     </div>
 
-    <!-- Section pour afficher la carte -->
-    <div id="map"></div>
-
-    <!-- Informations sur les points, distances et surface -->
-    <div id="info" class="mt-4">
-        <h3>Informations</h3>
-        <p><strong>Coordonnées du point ajouté:</strong> <span id="pointCoords">Aucun point ajouté</span></p>
-        <p><strong>Distance totale de la ligne tracée:</strong> <span id="lineDistance">0 km</span></p>
-        <p><strong>Superficie du polygone:</strong> <span id="polygonArea">0 m²</span></p>
-    </div>
-
-    <!-- Scripts pour Leaflet, Bootstrap et les outils de dessin -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.geometryutil/0.9.3/leaflet.geometryutil.min.js"></script>
     <script>
-        // Initialisation de la carte centrée sur Kribi, Cameroun
-        var map = L.map('map').setView([2.9373, 9.9104], 13);
+        // Initialisation de la carte centrée sur Kribi
+        var map = L.map('map').setView([2.9397, 9.9106], 13); // Coordonnées de Kribi
+        
+        // Ajout d'une couche OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18
+            maxZoom: 18,
+            attribution: '© OpenStreetMap'
         }).addTo(map);
 
+        // Outils de dessin
         var drawnItems = new L.FeatureGroup();
         map.addLayer(drawnItems);
 
@@ -133,65 +161,95 @@
                 featureGroup: drawnItems
             },
             draw: {
-                polyline: {
-                    shapeOptions: {
-                        color: '#00ffc8',
-                        weight: 5
-                    }
-                }
+                polygon: true,
+                polyline: true,
+                marker: true,
+                circle: false,
+                rectangle: false,
+                circlemarker: false
             }
         });
         map.addControl(drawControl);
 
-        var totalDistance = 0;
-        var polygonArea = 0;
+        // Fonction pour calculer la distance entre les points d'une polyline
+        function calculateDistance(layer) {
+            var latlngs = layer.getLatLngs();
+            var distance = 0;
+            for (var i = 0; i < latlngs.length - 1; i++) {
+                distance += latlngs[i].distanceTo(latlngs[i + 1]);
+            }
+            return (distance / 1000).toFixed(2); // Convertir en km
+        }
 
-        // Affichage des informations sur le point, la ligne et le polygone
-        map.on(L.Draw.Event.CREATED, function (e) {
-            var type = e.layerType,
-                layer = e.layer;
+        // Fonction pour calculer le périmètre et la surface d'un polygone
+        function calculatePolygonStats(layer) {
+            var latlngs = layer.getLatLngs()[0];
+            var perimeter = 0;
+            var area = L.GeometryUtil.geodesicArea(latlngs);
+
+            for (var i = 0; i < latlngs.length - 1; i++) {
+                perimeter += latlngs[i].distanceTo(latlngs[i + 1]);
+            }
+            perimeter += latlngs[latlngs.length - 1].distanceTo(latlngs[0]); // Fermeture du polygone
+
+            return {
+                perimeter: (perimeter / 1000).toFixed(2), // Convertir en km
+                area: (area / 1000000).toFixed(2) // Convertir en km²
+            };
+        }
+
+        // Fonction pour afficher les informations sur la carte
+        function updateInfo(layer) {
+            var type = layer instanceof L.Marker ? 'marker' :
+                layer instanceof L.Polyline && !(layer instanceof L.Polygon) ? 'polyline' : 'polygon';
 
             if (type === 'marker') {
-                var latlng = layer.getLatLng();
-                document.getElementById('pointCoords').innerText = latlng.lat.toFixed(5) + ", " + latlng.lng.toFixed(5);
+                var coords = layer.getLatLng();
+                document.getElementById('pointCoords').innerHTML = `Longitude : ${coords.lat.toFixed(6)}, Latitude : ${coords.lng.toFixed(6)}`;
             }
 
             if (type === 'polyline') {
-                var latlngs = layer.getLatLngs();
-                totalDistance = L.GeometryUtil.length(latlngs) / 1000; // distance en km
-                document.getElementById('lineDistance').innerText = totalDistance.toFixed(2) + " km";
+                var distance = calculateDistance(layer);
+                document.getElementById('lineDistance').innerHTML = `${distance} km`;
             }
 
             if (type === 'polygon') {
-                polygonArea = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]); // surface en m²
-                document.getElementById('polygonArea').innerText = polygonArea.toFixed(2) + " m²";
+                var stats = calculatePolygonStats(layer);
+                document.getElementById('polygonArea').innerHTML = `${stats.area} km²`;
+                document.getElementById('polygonPerimeter').innerHTML = `${stats.perimeter} km`;
             }
+        }
 
+        // Gestion des événements de création
+        map.on(L.Draw.Event.CREATED, function (event) {
+            var layer = event.layer;
             drawnItems.addLayer(layer);
+            updateInfo(layer);
         });
 
-        // Fin du tracé des lignes après double-clic
-        map.on('click', function () {
-            if (drawControl._toolbars.draw._activeMode !== null && drawControl._toolbars.draw._activeMode.handler instanceof L.Draw.Polyline) {
-                drawControl._toolbars.draw._activeMode.handler.completeShape();
-            }
+        // Gestion des événements de modification
+        map.on(L.Draw.Event.EDITED, function (event) {
+            var layers = event.layers;
+            layers.eachLayer(function (layer) {
+                updateInfo(layer);
+            });
         });
 
         // Bouton pour réinitialiser la carte
         document.getElementById('resetBtn').addEventListener('click', function () {
-            drawnItems.clearLayers();  // Suppression de tous les tracés
+            drawnItems.clearLayers();
             document.getElementById('pointCoords').innerText = "Aucun point ajouté";
             document.getElementById('lineDistance').innerText = "0 km";
-            document.getElementById('polygonArea').innerText = "0 m²";
-            totalDistance = 0;
-            polygonArea = 0;
+            document.getElementById('polygonArea').innerText = "0 Km²";
+            document.getElementById('polygonPerimeter').innerText = "0 Km";
         });
 
-        // Bouton pour recentrer la carte sur Kribi
+        // Bouton pour recentrer la carte sur kribi
         document.getElementById('centerBtn').addEventListener('click', function () {
-            map.setView([2.9373, 9.9104], 13);  // Recentrer sur Kribi, Cameroun
+            map.setView([2.9397, 9.9106], 13); // Recentre sur Kribi
         });
     </script>
+
 </body>
 
 </html>
