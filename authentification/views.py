@@ -49,17 +49,19 @@ def user_login(request):
         else:
             messages.error(request, "Nom d'utilisateur ou mot de passe incorrect")
             
-
     return render(request, 'authentification/login.html')
 
 def user_logout(request):
     logout(request)
     return redirect('authentification:login')
 
+def edit_profil(request):
+    return render(request, 'authentification/edit.html')
+
 @login_required
 def index(request):
     return render(request, 'authentification/index.html')
 
 @login_required
-def mainpage(request):
-      return render(request,'authentification/mainpage.html')
+def profil(request):
+      return render(request,'authentification/profil.html')

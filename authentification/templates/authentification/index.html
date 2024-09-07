@@ -27,7 +27,7 @@
             min-height: 100vh;
         }
 
-        h1, h3 {
+        h1, h3, h2 {
             color: #00ffc8;
         }
 
@@ -136,7 +136,7 @@
             color: #fff;
         }
         
-        .header details ul li a {
+        .header details ul a {
             color: #fff;
             text-decoration: none;
             list-style: none;
@@ -147,7 +147,15 @@
         }
 
         .header details summary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
             list-style: none;
+        }
+
+        .header details summary span {
+            color: #00ffc8;
         }
 
         .header details summary i {
@@ -173,11 +181,11 @@
             <nav>
                 <details>
                     <summary>
-                        <i class="bi bi-person"></i>
+                        <i class="bi bi-person"></i><span> {{ user.username }} </span>
                     </summary>
                     <ul>
-                        <li>Profil</li>
-                        <li><a href="{% url 'authentification:logout' %}">Sign Out</a></li>
+                        <a href="{% url 'authentification:profil' %}"><li>Profil</li></a>
+                        <a href="{% url 'authentification:logout' %}"><li>Sign Out</li></a>
                     </ul>
                     
                 </details>

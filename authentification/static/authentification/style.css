@@ -3,7 +3,7 @@
 body {
     background: radial-gradient(circle, rgba(0,0,0,1) 0%, rgba(36,36,36,1) 100%);
     color: #00ffc8;
-    font-family: Inter;
+    font-family: 'Inter';
     margin: 0;
     text-align: center;
     min-height: 100vh;
