@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code de confirmation</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Orbitron', sans-serif; background-color: #212121; color: #00ffc8; text-align: center; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <div style="max-width: 600px; width: 100%; background-color: #2C2C2E; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);">
+        <!-- Logo -->
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="width: 60px; height: 60px; background-color: #1C1C1E; margin: auto; display: flex; justify-content: center; align-items: center; border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);">
+                <img src="logo.png" alt="Logo" style="width: 40px; opacity: 0.4;">
+            </div>
+        </div>
+
+        <!-- Message -->
+        <h1 style="color: #fff; font-size: 24px; margin-bottom: 10px;">Confirmation de votre email</h1>
+        <p style="font-size: 16px; color: #fff;">
+            Bonjour {{ name }},
+            <br><br>
+            Merci pour votre inscription. Veuillez entrer le code de confirmation ci-dessous pour activer votre compte :
+        </p>
+
+        <!-- Code de confirmation -->
+        <div style="font-size: 40px; font-weight: bold; margin: 30px 0; color: #00ffc8; letter-spacing: 10px;">
+            {{ code }}
+        </div>
+
+        <!-- Lien d'accès -->
+        <div style="margin-top: 30px;">
+            <a href="https" style="display: inline-block; padding: 12px 20px; background-color: #00ffc8; color: #1C1C1E; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 16px; transition: background-color 0.3s ease;">
+                Accéder à votre compte
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div style="margin-top: 50px; font-size: 12px; color: #717171;">
+            <p>© 2024 GeoApp - Tous droits réservés</p>
+            <p><a href="#" style="color: #00ffc8; text-decoration: none;">Politique de confidentialité</a> | <a href="#" style="color: #00ffc8; text-decoration: none;">Contact</a></p>
+        </div>
+    </div>
+</body>
+</html>

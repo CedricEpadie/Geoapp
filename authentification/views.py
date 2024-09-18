@@ -3,6 +3,16 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import CustomUser
+from .utils import send_email_with_html_body
+import random
+
+def generate_verif_code():
+    code = ''
+    
+    for i in range(6):
+        code += str(random.randint(0, 9))
+    
+    return int(code)
 
 def register(request):
     if request.method == 'POST':
@@ -12,6 +22,15 @@ def register(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         profession = request.POST.get('profession')
+        
+        code = generate_verif_code()
+        subjet = 'Code de confirmation'
+        template = 'authentification/email.html'
+        context = {
+            'name': first_name + ' ' + last_name,
+            'code': code,
+        }
+        receivers = [email]
 
         if not all([first_name, last_name, email, username, password, profession]):
             return render(request, 'authentification/register.html', {'error': 'Tous les champs sont obligatoires.'})
@@ -23,19 +42,45 @@ def register(request):
             return render(request, 'authentification/register.html', {'error': 'L’adresse email est déjà utilisée.'})
 
         try:
-            user = CustomUser.objects.create_user(
+            has_send = send_email_with_html_body(
+                subjet=subjet,
+                receivers=receivers,
+                template=template,
+                context=context
+            )
+            
+            if has_send:
+                user = CustomUser.objects.create_user(
                 first_name=first_name,
                 last_name=last_name,
                 email=email,
                 username=username,
                 password=password,
-                profession=profession
+                profession=profession,
             )
-            return redirect('authentification:login')
+                request.session['id'] = user.id
+                request.session['code'] = code
+                return redirect('authentification:code')
+            else:
+                return render(request, 'authentification/register.html', {'error': 'Une erreur s\'est produite'})
         except Exception as e:
             return render(request, 'authentification/register.html', {'error': str(e)})
 
     return render(request, 'authentification/register.html')
+
+def code(request):
+    if request.method == 'POST':
+        code = request.POST.get('code')
+        code=int(code)
+        user = CustomUser.objects.get(id=request.session['id'])
+        if code == request.session['code']:
+            user.code = code 
+            user.save()
+            return redirect('authentification:login')
+        else:
+            return render(request, 'authentification/code.html', {'error': 'Code non valide'})
+            
+    return render(request, 'authentification/code.html')
 
 def user_login(request):
     if request.method == 'POST':
@@ -43,12 +88,15 @@ def user_login(request):
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         
-        if user is not None:
-            login(request, user)
-            request.session['username'] = user.username
-            return redirect('authentification:index')
+        if user is not None and user.code == 0 :
+            return redirect('authentification:register')
         else:
-            messages.error(request, "Nom d'utilisateur ou mot de passe incorrect")
+            if user is not None:
+                login(request, user)
+                request.session['username'] = user.username
+                return redirect('authentification:index')
+            else:
+                messages.error(request, "Nom d'utilisateur ou mot de passe incorrect")
             
     return render(request, 'authentification/login.html')
 
@@ -74,6 +122,8 @@ def edit_profil(request):
         request.session['username'] = user.username
         
         user.save()
+        return redirect('authentification:edit')
+        
     return render(request, 'authentification/edit.html')
 
 @login_required

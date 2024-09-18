@@ -208,9 +208,9 @@
                 <div id="info">
                     <h3>Informations</h3>
                     <p><strong>Coordonnées du point ajouté:</strong> <span id="pointCoords">Aucun point ajouté</span></p>
-                    <p><strong>Distance totale de la ligne tracée:</strong> <span id="lineDistance">0 km</span></p>
-                    <p><strong>Superficie du polygone:</strong> <span id="polygonArea">0 Km²</span></p>
-                    <p><strong>Périmètre du polygone:</strong> <span id="polygonPerimeter">0 Km</span></p>
+                    <p><strong>Distance totale de la ligne tracée:</strong> <span id="lineDistance">0 m</span></p>
+                    <p><strong>Superficie du polygone:</strong> <span id="polygonArea">0 m²</span></p>
+                    <p><strong>Périmètre du polygone:</strong> <span id="polygonPerimeter">0 m</span></p>
                 </div>
             </div>
 
@@ -257,7 +257,7 @@
             for (var i = 0; i < latlngs.length - 1; i++) {
                 distance += latlngs[i].distanceTo(latlngs[i + 1]);
             }
-            return (distance / 1000).toFixed(2); // Convertir en km
+            return (distance).toFixed(2); // Convertir en km
         }
 
         // Fonction pour calculer le périmètre et la surface d'un polygone
@@ -272,8 +272,8 @@
             perimeter += latlngs[latlngs.length - 1].distanceTo(latlngs[0]); // Fermeture du polygone
 
             return {
-                perimeter: (perimeter / 1000).toFixed(2), // Convertir en km
-                area: (area / 1000000).toFixed(2) // Convertir en km²
+                perimeter: (perimeter).toFixed(2), // Convertir en km
+                area: (area).toFixed(2) // Convertir en km²
             };
         }
 
@@ -289,13 +289,13 @@
 
             if (type === 'polyline') {
                 var distance = calculateDistance(layer);
-                document.getElementById('lineDistance').innerHTML = `${distance} km`;
+                document.getElementById('lineDistance').innerHTML = `${distance} m`;
             }
 
             if (type === 'polygon') {
                 var stats = calculatePolygonStats(layer);
-                document.getElementById('polygonArea').innerHTML = `${stats.area} km²`;
-                document.getElementById('polygonPerimeter').innerHTML = `${stats.perimeter} km`;
+                document.getElementById('polygonArea').innerHTML = `${stats.area} m²`;
+                document.getElementById('polygonPerimeter').innerHTML = `${stats.perimeter} m`;
             }
         }
 
