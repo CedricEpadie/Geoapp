@@ -2,333 +2,383 @@
 
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Carte Interactive de Kribi</title>
     <!-- Intégration de Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <!-- Ajout d'icônes Bootstrap -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl/2.15.0/mapbox-gl.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl-draw/1.4.3/mapbox-gl-draw.css" type="text/css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl/2.15.0/mapbox-gl.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl-draw/1.4.3/mapbox-gl-draw.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-
-        body {
-            background: radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(36, 36, 36, 1) 100%);
-            font-family: 'Orbitron', sans-serif;
-            color: #e0e0e0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+      @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+      
+      body {
+        background: radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(36, 36, 36, 1) 100%);
+        font-family: 'Orbitron', sans-serif;
+        color: #e0e0e0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      
+      h1,
+      h3,
+      h2 {
+        color: #00ffc8;
+      }
+      
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, #00ffc8, #0d7377, #212121);
+        filter: blur(150px);
+        z-index: -1;
+        animation: rotate 10s infinite linear;
+      }
+      
+      @keyframes rotate {
+        0% {
+          transform: rotate(0deg);
         }
-
-        h1, h3, h2 {
-            color: #00ffc8;
+        100% {
+          transform: rotate(360deg);
         }
+      }
+      
+      #controls {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+      
+      .container-fluid {
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+      }
+      
+      .figure-info {
+        position: absolute;
+        background-color: white;
+        padding: 5px;
+        border-radius: 3px;
+        font-size: 12px;
+        pointer-events: none;
+        color: black;
+      }
+      
+      .map-control {
+        background-color: rgba(255, 255, 255, 0.2);
+        filter: blur(10%%);
+        border-radius: 10px;
+        padding: 10px;
+        z-index: 1;
+      }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, #00ffc8, #0d7377, #212121);
-            filter: blur(150px);
-            z-index: -1;
-            animation: rotate 10s infinite linear;
-        }
-
-        @keyframes rotate {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        #controls {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .container-fluid {
-            max-width: 1200px;
-            margin: auto;
-            padding: 20px;
-        }
-
-        #map {
-            height: 450px;
-            width: 100%;
-            border: 2px solid #00ffc8;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
+      .map-control select, option {
+        border-radius: 10px;
+        border: none;
+        outline: none;
+      }
+      
+      #map {
+        height: 450px;
+        width: 100%;
+        border: 2px solid #00ffc8;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
+      
+      .btn {
+        border-radius: 30px;
+        background-color: #333;
+        color: #00ffc8;
+        border: 1px solid #00ffc8;
+      }
+      
+      .btn:hover {
+        background-color: #444;
+        color: #fff;
+        box-shadow: 0px 0px 10px #00ffc8;
+      }
+      
+      .option {
+        margin-right: 8px;
+      }
+      
+      .header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+      }
+      
+      .header details {
+        position: relative;
+      }
+      
+      .header details ul {
+        position: absolute;
+        right: 100%;
+        top: 0%;
+        transform: translateX(0%);
+        list-style: none;
+        width: 150px;
+        background-color: #2a2a2c;
+        border-radius: 5px;
+        padding: 0;
+        margin: 0;
+        margin-right: 5px;
+      }
+      
+      .header details ul li {
+        padding: 10px 0;
+        cursor: pointer;
+        text-align: center;
+        width: 100%; /* Les li prennent toute la largeur du ul */
+        display: block;
+        color: #fff;
+      }
+      
+      .header details ul a {
+        color: #fff;
+        text-decoration: none;
+        list-style: none;
+      }
+      
+      .header details ul li:hover {
+        box-shadow: 0px 0px 10px #00ffc8;
+      }
+      
+      .header details summary {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        list-style: none;
+      }
+      
+      .header details summary span {
+        color: #00ffc8;
+      }
+      
+      .header details summary i {
+        font-size: 30px;
+        color: #00ffc8;
+      }
+      
+      @media (max-width: 768px) {
         #info {
-            padding: 15px;
-            background-color: #2a2a2c;
-            border: 1px solid #444;
-            border-radius: 8px;
-            color: #fff;
-            min-height: 300px;
+          min-height: 200px;
+          margin-top: 20px;
         }
-
-        .btn {
-            border-radius: 30px;
-            background-color: #333;
-            color: #00ffc8;
-            border: 1px solid #00ffc8;
-        }
-
-        .btn:hover {
-            background-color: #444;
-            color: #fff;
-            box-shadow: 0px 0px 10px #00ffc8;
-        }
-
-        .option {
-            margin-right: 8px;
-        }
-
-        .header {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 40px;
-        }
-
-        .header details {
-            position: relative;
-        }
-
-        .header details ul {
-            position: absolute;
-            right: 100%;
-            top: 0%;
-            transform: translateX(0%);
-            list-style: none;
-            width: 150px;
-            background-color: #2a2a2c;
-            border-radius: 5px;
-            padding: 0;
-            margin: 0;
-            margin-right: 5px;
-        }
-        
-        .header details ul li {
-            padding: 10px 0;
-            cursor: pointer;
-            text-align: center;
-            width: 100%; /* Les li prennent toute la largeur du ul */
-            display: block;
-            color: #fff;
-        }
-        
-        .header details ul a {
-            color: #fff;
-            text-decoration: none;
-            list-style: none;
-        }
-                
-        .header details ul li:hover {
-            box-shadow: 0px 0px 10px #00ffc8;
-        }
-
-        .header details summary {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            list-style: none;
-        }
-
-        .header details summary span {
-            color: #00ffc8;
-        }
-
-        .header details summary i {
-            font-size: 30px;
-            color: #00ffc8;
-        }
-
-        @media (max-width: 768px) {
-            #info {
-                min-height: 200px;
-                margin-top: 20px;
-            }
-        }
+      }
     </style>
-</head>
+  </head>
 
-<body>
-
+  <body>
     <div class="container-fluid">
-        <div class="header">
-            <h1 class="text-center mb-4">GeoApp</h1>
+      <div class="header">
+        <h1 class="text-center mb-4">GeoApp</h1>
 
-            <nav>
-                <details>
-                    <summary>
-                        <i class="bi bi-person"></i><span> {{ user.username }} </span>
-                    </summary>
-                    <ul>
-                        <a href="{% url 'authentification:profil' %}"><li>Profil</li></a>
-                        <a href="{% url 'authentification:logout' %}"><li>Sign Out</li></a>
-                    </ul>
-                    
-                </details>
-            </nav>
+        <div class="map-control">
+          <label for="style-selector">Choisissez un style de carte :</label>
+          <select id="style-selector">
+            <option value="streets-v12">Rue</option>
+            <option value="satellite-streets-v12">Satellite</option>
+          </select>
         </div>
 
-        <!-- Boutons de contrôle pour la carte -->
-        <div id="controls">
-            <button id="resetBtn" class="btn btn-danger">
-                <i class="option bi bi-x-circle"></i> Réinitialiser la carte
-            </button>
-            <button id="centerBtn" class="btn btn-primary">
-                <i class="option bi bi-geo-alt"></i> Recentrer sur Kribi
-            </button>
-        </div>
+        <nav>
+          <details>
+            <summary>
+              <i class="bi bi-person"></i><span>{{ user.username }}</span>
+            </summary>
+            <ul>
+              <a href="{% url 'authentification:profil' %}"><li>Profil</li></a>
+              <a href="{% url 'authentification:logout' %}"><li>Sign Out</li></a>
+            </ul>
+          </details>
+        </nav>
+      </div>
 
-        <div class="row">
-            <!-- Informations sur les points, distances et surface -->
-            <div class="col-md-4">
-                <div id="info">
-                    <h3>Informations</h3>
-                    <p><strong>Coordonnées du point ajouté:</strong> <span id="pointCoords">Aucun point ajouté</span></p>
-                    <p><strong>Distance totale de la ligne tracée:</strong> <span id="lineDistance">0 m</span></p>
-                    <p><strong>Superficie du polygone:</strong> <span id="polygonArea">0 m²</span></p>
-                    <p><strong>Périmètre du polygone:</strong> <span id="polygonPerimeter">0 m</span></p>
-                </div>
-            </div>
+      <!-- Boutons de contrôle pour la carte -->
+      <div id="controls">
+        <button id="resetBtn" class="btn btn-danger"><i class="option bi bi-x-circle"></i> Réinitialiser la carte</button>
+        <button id="centerBtn" class="btn btn-primary"><i class="option bi bi-geo-alt"></i> Recentrer sur Kribi</button>
+      </div>
 
-            <!-- Section pour afficher la carte -->
-            <div class="col-md-8">
-                <div id="map"></div>
-            </div>
+      <div class="row">
+        <!-- Section pour afficher la carte -->
+        <div class="col-md-12">
+          <div id="map"></div>
         </div>
+      </div>
     </div>
 
     <script>
-        // Initialisation de la carte centrée sur Kribi
-        var map = L.map('map').setView([2.9397, 9.9106], 13); // Coordonnées de Kribi
-        
-        // Ajout d'une couche OpenStreetMap
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
-
-        // Outils de dessin
-        var drawnItems = new L.FeatureGroup();
-        map.addLayer(drawnItems);
-
-        var drawControl = new L.Control.Draw({
-            edit: {
-                featureGroup: drawnItems
-            },
-            draw: {
-                polygon: true,
-                polyline: true,
-                marker: true,
-                circle: false,
-                rectangle: false,
-                circlemarker: false
-            }
-        });
-        map.addControl(drawControl);
-
-        // Fonction pour calculer la distance entre les points d'une polyline
-        function calculateDistance(layer) {
-            var latlngs = layer.getLatLngs();
-            var distance = 0;
-            for (var i = 0; i < latlngs.length - 1; i++) {
-                distance += latlngs[i].distanceTo(latlngs[i + 1]);
-            }
-            return (distance).toFixed(2); // Convertir en km
+      // Remplacez 'your-access-token' par votre clé API Mapbox
+      mapboxgl.accessToken = 'pk.eyJ1IjoiY2VkcmljZXBhZGllIiwiYSI6ImNtMXE3aTRsNDBibTAycG9qajR5YjFjdm4ifQ.uMkRry3szVbv-cKeqJDBtg'
+      
+      // Initialisation de la carte avec le style par défaut
+      var map = new mapboxgl.Map({
+        container: 'map', // ID de l'élément dans lequel la carte sera affichée
+        style: 'mapbox://styles/mapbox/streets-v12', // Style par défaut
+        center: [9.9106, 2.9397], // Longitude, Latitude (ici Kribi)
+        zoom: 13 // Niveau de zoom initial
+      })
+      
+      const nav = new mapboxgl.NavigationControl()
+      map.addControl(nav, 'top-left')
+      
+      // Ajouter le contrôle de dessin (points, lignes, polygones)
+      var draw = new MapboxDraw({
+        displayControlsDefault: false,
+        controls: {
+          point: true,
+          line_string: true,
+          polygon: true,
+          trash: true
         }
-
-        // Fonction pour calculer le périmètre et la surface d'un polygone
-        function calculatePolygonStats(layer) {
-            var latlngs = layer.getLatLngs()[0];
-            var perimeter = 0;
-            var area = L.GeometryUtil.geodesicArea(latlngs);
-
-            for (var i = 0; i < latlngs.length - 1; i++) {
-                perimeter += latlngs[i].distanceTo(latlngs[i + 1]);
-            }
-            perimeter += latlngs[latlngs.length - 1].distanceTo(latlngs[0]); // Fermeture du polygone
-
-            return {
-                perimeter: (perimeter).toFixed(2), // Convertir en km
-                area: (area).toFixed(2) // Convertir en km²
-            };
-        }
-
-        // Fonction pour afficher les informations sur la carte
-        function updateInfo(layer) {
-            var type = layer instanceof L.Marker ? 'marker' :
-                layer instanceof L.Polyline && !(layer instanceof L.Polygon) ? 'polyline' : 'polygon';
-
-            if (type === 'marker') {
-                var coords = layer.getLatLng();
-                document.getElementById('pointCoords').innerHTML = `Longitude : ${coords.lat.toFixed(6)}, Latitude : ${coords.lng.toFixed(6)}`;
-            }
-
-            if (type === 'polyline') {
-                var distance = calculateDistance(layer);
-                document.getElementById('lineDistance').innerHTML = `${distance} m`;
-            }
-
-            if (type === 'polygon') {
-                var stats = calculatePolygonStats(layer);
-                document.getElementById('polygonArea').innerHTML = `${stats.area} m²`;
-                document.getElementById('polygonPerimeter').innerHTML = `${stats.perimeter} m`;
-            }
-        }
-
-        // Gestion des événements de création
-        map.on(L.Draw.Event.CREATED, function (event) {
-            var layer = event.layer;
-            drawnItems.addLayer(layer);
-            updateInfo(layer);
-        });
-
-        // Gestion des événements de modification
-        map.on(L.Draw.Event.EDITED, function (event) {
-            var layers = event.layers;
-            layers.eachLayer(function (layer) {
-                updateInfo(layer);
-            });
-        });
-
-        // Bouton pour réinitialiser la carte
-        document.getElementById('resetBtn').addEventListener('click', function () {
-            drawnItems.clearLayers();
-            document.getElementById('pointCoords').innerText = "Aucun point ajouté";
-            document.getElementById('lineDistance').innerText = "0 km";
-            document.getElementById('polygonArea').innerText = "0 Km²";
-            document.getElementById('polygonPerimeter').innerText = "0 Km";
-        });
-
-        // Bouton pour recentrer la carte sur kribi
-        document.getElementById('centerBtn').addEventListener('click', function () {
-            map.setView([2.9397, 9.9106], 13); // Recentre sur Kribi
-        });
+      })
+      map.addControl(draw)
+      
+      // Stocker les informations pour mise à jour lors des déplacements de la carte
+      var figureInfoElements = []
+      
+      // Fonction pour afficher les informations des figures
+      function displayFigureInfo(coordinates, info) {
+        var infoDiv = document.createElement('div')
+        infoDiv.className = 'figure-info'
+        infoDiv.innerHTML = info
+        document.body.appendChild(infoDiv)
+      
+        // Ajouter l'élément à la liste pour une mise à jour automatique lors des déplacements
+        figureInfoElements.push({
+          element: infoDiv,
+          coordinates: coordinates
+        })
+      
+        // Mettre à jour la position initiale
+        updateFigureInfoPosition(infoDiv, coordinates)
+      }
+      
+      // Fonction pour mettre à jour la position des informations
+      function updateFigureInfoPosition(infoDiv, coordinates) {
+        var point = map.project(coordinates)
+        point.x += 30
+        point.y += 100
+        infoDiv.style.left = point.x + 'px'
+        infoDiv.style.top = point.y + 'px'
+      }
+      
+      // Fonction pour supprimer les anciennes informations
+      function clearInfo() {
+        figureInfoElements.forEach(function (info) {
+          if (info.element.parentNode) {
+            info.element.parentNode.removeChild(info.element)
+          }
+        })
+        figureInfoElements = []
+      }
+      
+      // Fonction pour mettre à jour les informations de surface ou de longueur
+      function updateInfo() {
+        var data = draw.getAll()
+        clearInfo() // Supprimer les anciennes infos
+      
+        data.features.forEach(function (feature) {
+          // Si c'est un polygone, on calcule la surface
+          if (feature.geometry.type === 'Polygon') {
+            var coordinates = feature.geometry.coordinates[0][0] // Premier point du polygone
+            var area = turf.area(feature)
+            var roundedArea = Math.round(area * 100) / 100
+            displayFigureInfo(coordinates, 'Surface: ' + roundedArea + ' m²')
+      
+            // Si c'est une ligne, on calcule la longueur
+          } else if (feature.geometry.type === 'LineString') {
+            var coordinates = feature.geometry.coordinates[Math.floor(feature.geometry.coordinates.length / 2)]
+            var length = turf.length(feature, { units: 'kilometers' })
+            var roundedLength = Math.round(length * 100) / 100
+            displayFigureInfo(coordinates, 'Longueur: ' + roundedLength + ' km')
+      
+            // Si c'est un point, on affiche simplement les coordonnées
+          } else if (feature.geometry.type === 'Point') {
+            var coordinates = feature.geometry.coordinates
+            displayFigureInfo(coordinates, 'Point: ' + coordinates.join(', '))
+          }
+        })
+      }
+      
+      // Activer les événements de dessin et mise à jour
+      map.on('draw.create', updateInfo)
+      map.on('draw.update', updateInfo)
+      map.on('draw.delete', clearInfo)
+      
+      // Mise à jour des positions lors des déplacements et zooms sur la carte
+      map.on('move', function () {
+        figureInfoElements.forEach(function (info) {
+          updateFigureInfoPosition(info.element, info.coordinates)
+        })
+      })
+      map.on('zoom', function () {
+        figureInfoElements.forEach(function (info) {
+          updateFigureInfoPosition(info.element, info.coordinates)
+        })
+      })
+      
+      map.on('load', function () {
+        // Ajouter la source GeoJSON
+        map.addSource('my_data', {
+          type: 'geojson',
+          data: 'http://127.0.0.1:8000/authentification/json/' // chemin vers votre fichier GeoJSON
+        })
+      
+        // Ajouter la couche de cercles
+        map.addLayer({
+          id: 'my_layer',
+          type: 'circle', // Correction du type de couche
+          source: 'my_data' // la source que vous venez d'ajouter
+        })
+      })
+      
+      // Réappliquer les couches après chaque changement de style
+      map.on('styledata', function () {
+        map.addSource('my_data', {
+          type: 'geojson',
+          data: 'http://127.0.0.1:8000/authentification/json/'
+        })
+      
+        map.addLayer({
+          id: 'my_layer',
+          type: 'circle',
+          source: 'my_data'
+        })
+      })
+      
+      // Permet de changer le style de la carte via un sélecteur
+      var styleSelector = document.getElementById('style-selector')
+      styleSelector.addEventListener('change', function () {
+        var style = 'mapbox://styles/mapbox/' + this.value
+        map.setStyle(style)
+      })
+      
+      document.getElementById('centerBtn').addEventListener('click', function () {
+        map.flyTo({ center: [9.9106, 2.9397], zoom: 13 }) // Recentre sur Kribi
+      })
     </script>
-
-</body>
-
+  </body>
 </html>

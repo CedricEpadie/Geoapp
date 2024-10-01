@@ -28,12 +28,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
+    'corsheaders',
     'authentification.apps.AuthentificationConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -67,10 +70,16 @@ WSGI_APPLICATION = 'idsproject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',  # Utilisez PostGIS comme backend
+        'NAME': 'spatial_db',  # Nom de votre base de données PostgreSQL
+        'USER': 'postgres',  # Remplacez par votre nom d'utilisateur PostgreSQL
+        'PASSWORD': 'cedric',  # Remplacez par votre mot de passe PostgreSQL
+        'HOST': 'localhost',  # Ou l'adresse de votre serveur PostgreSQL
+        'PORT': '5432',  # Port par défaut pour PostgreSQL
     }
 }
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 # Password validation

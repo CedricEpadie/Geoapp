@@ -1,0 +1,209 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte Interactive de Kribi</title>
+
+    <!-- Intégration de Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAE8BoR9gvNST5Clb-UHb7_HlGWOOVqFbQ&libraries=drawing,geometry"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+        body {
+            background: radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(36, 36, 36, 1) 100%);
+            font-family: 'Orbitron', sans-serif;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        h1, h3, h2 {
+            color: #00ffc8;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, #00ffc8, #0d7377, #212121);
+            filter: blur(150px);
+            z-index: -1;
+            animation: rotate 10s infinite linear;
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .container-fluid {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        #map {
+            height: 450px;
+            width: 100%;
+            border: 2px solid #00ffc8;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        #info {
+            padding: 15px;
+            background-color: #2a2a2c;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: #fff;
+            min-height: 300px;
+        }
+
+        .btn {
+            border-radius: 30px;
+            background-color: #333;
+            color: #00ffc8;
+            border: 1px solid #00ffc8;
+        }
+
+        .btn:hover {
+            background-color: #444;
+            color: #fff;
+            box-shadow: 0px 0px 10px #00ffc8;
+        }
+
+        .option {
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            #info {
+                min-height: 200px;
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <h1 class="text-center mb-4">GeoApp avec Google Earth</h1>
+
+        <!-- Boutons de contrôle pour la carte -->
+        <div id="controls">
+            <button id="resetBtn" class="btn btn-danger">
+                <i class="option bi bi-x-circle"></i> Réinitialiser la carte
+            </button>
+            <button id="centerBtn" class="btn btn-primary">
+                <i class="option bi bi-geo-alt"></i> Recentrer sur Kribi
+            </button>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div id="info">
+                    <h3>Informations</h3>
+                    <p><strong>Coordonnées du point ajouté:</strong> <span id="pointCoords">Aucun point ajouté</span></p>
+                    <p><strong>Distance totale de la ligne tracée:</strong> <span id="lineDistance">0 m</span></p>
+                    <p><strong>Superficie du polygone:</strong> <span id="polygonArea">0 m²</span></p>
+                    <p><strong>Périmètre du polygone:</strong> <span id="polygonPerimeter">0 m</span></p>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialisation de la carte Google Maps centrée sur Kribi
+        var map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: 2.9397, lng: 9.9106 }, // Coordonnées de Kribi
+            zoom: 13,
+            mapTypeId: 'satellite'
+        });
+
+        var drawingManager = new google.maps.drawing.DrawingManager({
+            drawingMode: google.maps.drawing.OverlayType.MARKER,
+            drawingControl: true,
+            drawingControlOptions: {
+                position: google.maps.ControlPosition.TOP_CENTER,
+                drawingModes: ['marker', 'polyline', 'polygon']
+            },
+            markerOptions: { draggable: true },
+            polylineOptions: { editable: true },
+            polygonOptions: { editable: true }
+        });
+
+        drawingManager.setMap(map);
+
+        var shapes = [];
+        var infoWindow = new google.maps.InfoWindow();
+
+        function updateInfo(shape) {
+            if (shape.type === 'marker') {
+                document.getElementById('pointCoords').innerText = `Longitude: ${shape.position.lat().toFixed(6)}, Latitude: ${shape.position.lng().toFixed(6)}`;
+            }
+            if (shape.type === 'polyline') {
+                var distance = google.maps.geometry.spherical.computeLength(shape.getPath());
+                document.getElementById('lineDistance').innerText = `${distance.toFixed(2)} m`;
+            }
+            if (shape.type === 'polygon') {
+                var area = google.maps.geometry.spherical.computeArea(shape.getPath());
+                var perimeter = google.maps.geometry.spherical.computeLength(shape.getPath());
+                document.getElementById('polygonArea').innerText = `${area.toFixed(2)} m²`;
+                document.getElementById('polygonPerimeter').innerText = `${perimeter.toFixed(2)} m`;
+            }
+        }
+
+        google.maps.event.addListener(drawingManager, 'overlaycomplete', function (event) {
+            var shape = event.overlay;
+            shape.type = event.type;
+            shapes.push(shape);
+            updateInfo(shape);
+        });
+
+        // Réinitialisation de la carte
+        document.getElementById('resetBtn').addEventListener('click', function () {
+            shapes.forEach(shape => shape.setMap(null)); // Supprimer toutes les formes
+            shapes = [];
+            document.getElementById('pointCoords').innerText = "Aucun point ajouté";
+            document.getElementById('lineDistance').innerText = "0 m";
+            document.getElementById('polygonArea').innerText = "0 m²";
+            document.getElementById('polygonPerimeter').innerText = "0 m";
+        });
+
+        // Recentrage sur Kribi
+        document.getElementById('centerBtn').addEventListener('click', function () {
+            map.setCenter({ lat: 2.9397, lng: 9.9106 });
+            map.setZoom(13);
+        });
+    </script>
+</body>
+
+</html>

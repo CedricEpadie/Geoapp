@@ -1,4 +1,7 @@
 from django.contrib import admin
-from .models import CustomUser
+from . import models
 
-admin.site.register(CustomUser)
+admin.site.register(models.CustomUser)
+admin.site.register(models.BuildingsPolygons)
+admin.site.register(models.ElectricityLines)
+admin.site.register(models.Yaounde)
