@@ -12,5 +12,4 @@ urlpatterns = [
     path('profil/', views.profil, name='profil'),
     path('edit_profil/', views.edit_profil, name='edit'),
     path('test/', views.test, name='test'),
-    path('json/', views.jsonview, name='jsonview'),
 ]

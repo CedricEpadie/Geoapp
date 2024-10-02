@@ -6,17 +6,10 @@ from django.http import JsonResponse
 from django.core.serializers import serialize
 from django.contrib.gis.geos import MultiPolygon, GEOSGeometry
 from .models import *
-import json
 from .utils import send_email_with_html_body
 import random
 import ee
 import folium
-
-def jsonview(request):
-    with open('authentification/static/authentification/TC_14.geojson', 'r') as jsonfile:
-        data = json.load(jsonfile)
-        
-    return JsonResponse(data)
 
 def generate_verif_code():
     code = ''
