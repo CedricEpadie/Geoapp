@@ -11,5 +11,5 @@ urlpatterns = [
     path('index/', views.index, name='index'),
     path('profil/', views.profil, name='profil'),
     path('edit_profil/', views.edit_profil, name='edit'),
-    path('test/', views.test, name='test'),
+    path('JsonView/', views.JsonView, name='JsonView'),
 ]

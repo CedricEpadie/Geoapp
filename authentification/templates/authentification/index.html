@@ -21,7 +21,7 @@
         padding: 0;
         box-sizing: border-box;
       }
-
+      
       body {
         background: radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(36, 36, 36, 1) 100%);
         font-family: 'Orbitron', sans-serif;
@@ -165,12 +165,13 @@
       }
       
       .figure-info {
-        background-color: rgba(0, 0, 0, 0.7);
-        color: #00ffc8;
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
-        font-size: 0.875rem;
-        border: 1px solid rgba(0, 255, 200, 0.3);
+        position: absolute;
+        background-color: white;
+        padding: 5px;
+        border-radius: 3px;
+        font-size: 12px;
+        pointer-events: none;
+        color: black;
       }
       
       .user-menu summary {
@@ -305,7 +306,8 @@
       })
       map.addControl(draw)
       
-      let figureInfoElements = []
+      // Stocker les informations pour mise à jour lors des déplacements de la carte
+      var figureInfoElements = []
       
       // Fonction pour afficher les informations des figures
       function displayFigureInfo(coordinates, info) {
@@ -327,7 +329,8 @@
       // Fonction pour mettre à jour la position des informations
       function updateFigureInfoPosition(infoDiv, coordinates) {
         var point = map.project(coordinates)
-        point.y += 150
+        point.y += 190
+        point.x += 50
         infoDiv.style.left = point.x + 'px'
         infoDiv.style.top = point.y + 'px'
       }
@@ -389,7 +392,7 @@
       
       // Correction de la gestion des couches GeoJSON
       const geojsonLayers = {
-        couche1: "{% static 'authentification/map_data.geojson' %}",
+        couche1: "{% static 'authentification/cadastral2.geojson' %}",
         couche2: "{% static 'authentification/TC_18.geojson' %}",
         couche3: "{% static 'authentification/TC_14.geojson' %}"
       }
@@ -409,6 +412,7 @@
         fetch(url)
           .then((response) => response.json())
           .then((data) => {
+            // const simplifiedGeojson = turf.simplify(data, { tolerance: 0.01, highQuality: false });
             map.addSource(id, {
               // Utilisation de 'id' comme identifiant unique
               type: 'geojson',
@@ -421,7 +425,7 @@
               source: id, // Référence correcte à la source
               paint: {
                 'line-color': '#FF0000',
-                'line-width': 3
+                'line-width': 2
               },
               filter: ['==', '$type', 'LineString']
             })
@@ -431,7 +435,7 @@
               type: 'circle',
               source: id,
               paint: {
-                'circle-radius': 6,
+                'circle-radius': 3,
                 'circle-color': '#0000FF'
               },
               filter: ['==', '$type', 'Point']
@@ -454,7 +458,7 @@
               source: id,
               paint: {
                 'line-color': '#000000',
-                'line-width': 2
+                'line-width': 1
               },
               filter: ['==', '$type', 'Polygon']
             })
@@ -569,4 +573,3 @@
     </script>
   </body>
 </html>
-

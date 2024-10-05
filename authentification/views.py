@@ -4,12 +4,17 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.core.serializers import serialize
-from django.contrib.gis.geos import MultiPolygon, GEOSGeometry
 from .models import *
 from .utils import send_email_with_html_body
 import random
-import ee
-import folium
+
+import json
+
+def JsonView(request):
+    with open('authentification/static/authentification/cadastral2.geojson', 'r') as file:
+        data = json.load(file)
+    
+    return JsonResponse(data)
 
 def generate_verif_code():
     code = ''
@@ -170,30 +175,3 @@ def index(request):
 @login_required
 def profil(request):
       return render(request,'authentification/profil.html')
-  
-def test(request):
-    ee.Authenticate()
-    # Authentification à Google Earth Engine
-    ee.Initialize()
-
-    # Définir les coordonnées de la carte
-    kribi_coords = [2.9397, 9.9106]
-
-    # Créer une carte folium
-    m = folium.Map(location=kribi_coords, zoom_start=13)
-
-    # Charger une image satellite depuis GEE
-    image = ee.Image('COPERNICUS/S2')
-
-    # Charger les tuiles à partir de l'image dans GEE
-    map_id_dict = image.getMapId({'min': 0, 'max': 3000, 'bands': ['B4', 'B3', 'B2']})
-    folium.TileLayer(
-        tiles=map_id_dict['tile_fetcher'].url_format,
-        attr='Google Earth Engine',
-        overlay=True,
-        name='Satellite',
-    ).add_to(m)
-
-    # Affichage de la carte
-    m.save('kribi_map.html')
-    return render(request, 'authentification/test.html')
