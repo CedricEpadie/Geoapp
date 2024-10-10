@@ -13,6 +13,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl/2.15.0/mapbox-gl.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl-draw/1.4.3/mapbox-gl-draw.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
       
@@ -171,6 +173,7 @@
         border-radius: 3px;
         font-size: 12px;
         pointer-events: none;
+        margin-bottom: -10px;
         color: black;
       }
       
@@ -223,6 +226,402 @@
           justify-content: center;
         }
       }
+      
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        background: radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(36, 36, 36, 1) 100%);
+        font-family: 'Orbitron', sans-serif;
+        color: #e0e0e0;
+        height: 100vh; /* Assurer que la page occupe toute la hauteur de l'écran */
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .container-fluid {
+        max-width: 1400px;
+        padding: 1rem 1.5rem;
+        flex-grow: 1; /* Permet à la carte et aux autres éléments de s'étendre */
+      }
+      
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+      
+      h1 {
+        color: #00ffc8;
+        font-weight: 700;
+        text-shadow: 0 0 10px rgba(0, 255, 200, 0.5);
+        margin-bottom: 0;
+      }
+      
+      #controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        justify-content: center;
+      }
+      
+      /* Alignement des nouveaux éléments avec le thème */
+      .controls {
+        flex-wrap: wrap;
+        justify-content: space-around;
+        gap: 1rem;
+        background-color: rgba(0, 0, 0, 0.5);
+        border: 1px solid #00ffc8;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 0 15px rgba(0, 255, 200, 0.5);
+        width: 100%;
+        display: none;
+      }
+      
+      #geojson {
+        flex-wrap: wrap;
+        justify-content: space-around;
+        gap: 1rem;
+        background-color: rgba(0, 0, 0, 0.5);
+        border: 1px solid #00ffc8;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 0 15px rgba(0, 255, 200, 0.5);
+        width: 100%;
+        display: none;
+      }
+      
+      /* Style des inputs de type nombre et texte */
+      input[type='number'],
+      input[type='text'] {
+        background-color: rgba(0, 0, 0, 0.5);
+        color: #e0e0e0;
+        border: 1px solid #00ffc8;
+        border-radius: 5px;
+        padding: 0.5rem;
+        width: 100%;
+        box-shadow: 0 0 10px rgba(0, 255, 200, 0.3);
+        transition: border-color 0.3s ease;
+      }
+      
+      input[type='number']:focus,
+      input[type='text']:focus {
+        border-color: #00ffc8;
+        outline: none;
+      }
+      
+      /* Style des labels */
+      label {
+        color: #00ffc8;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        margin-bottom: 5px;
+      }
+      
+      /* Harmonisation des boutons */
+      .btn {
+        border-radius: 8px;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: #00ffc8;
+        border: 1px solid #00ffc8;
+        padding: 0.75rem 1.25rem;
+        transition: all 0.3s ease;
+        text-shadow: 0 0 5px rgba(0, 255, 200, 0.5);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      
+      .btn:hover {
+        background-color: rgba(0, 255, 200, 0.2);
+        box-shadow: 0 0 15px rgba(0, 255, 200, 0.5);
+        transform: translateY(-2px);
+      }
+      
+      /* Contrôle de sélection (dropdown) */
+      select {
+        background-color: rgba(0, 0, 0, 0.5);
+        color: #e0e0e0;
+        border: 1px solid #00ffc8;
+        border-radius: 5px;
+        padding: 0.5rem;
+        width: 100%;
+        box-shadow: 0 0 10px rgba(0, 255, 200, 0.3);
+        transition: border-color 0.3s ease;
+      }
+      
+      select:focus {
+        border-color: #00ffc8;
+        outline: none;
+      }
+      
+      /* Style spécifique pour le bouton de soumission dans le formulaire */
+      #submitbtn {
+        width: 100%;
+        margin-top: 1rem;
+      }
+      
+      /* Taille de la carte */
+      #map {
+        height: 70vh; /* La carte occupe 70% de la hauteur de l'écran */
+        border: 2px solid #00ffc8;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 255, 200, 0.2);
+        margin-bottom: 1.5rem;
+      }
+      
+      /* Formulaire pour le raster et GeoJSON */
+      #uploadForm {
+        background-color: rgba(0, 0, 0, 0.5);
+        border: 1px solid #00ffc8;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-top: 1rem;
+        display: none;
+      }
+      
+      #metadataModal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+      
+      #metadataContent {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        height: 70%;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      #closeModal,
+      #downloadPdf {
+        background-color: red;
+        color: white;
+        border: none;
+        padding: 10px;
+        margin-left: 10px;
+        cursor: pointer;
+      }
+      
+      .closedown {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        margin-bottom: 1rem;
+      }
+      
+      #downloadPdf {
+        background-color: green;
+      }
+      
+      /* Style du conteneur du tableau */
+      #metadata {
+        margin: 20px 0;
+        width: 100%;
+        overflow-x: auto;
+      }
+      
+      /* Style du tableau */
+      #metadata table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+        font-size: 14px;
+        border: 1px solid #dee2e6;
+        color: black
+      }
+      
+      /* En-têtes du tableau */
+      #metadata table thead tr th {
+        background-color: #2980b9;
+        color: white;
+        font-weight: 600;
+        padding: 12px 8px;
+        text-align: left;
+        border: 1px solid #2171a6;
+        white-space: nowrap;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+      
+      /* Première colonne (Feature) */
+      #metadata table th:first-child,
+      #metadata table td:first-child {
+        position: sticky;
+        left: 0;
+        background-color: inherit;
+        z-index: 2;
+        min-width: 100px;
+      }
+      
+      /* Cellules du tableau */
+      #metadata table td {
+        padding: 8px;
+        border: 1px solid #dee2e6;
+        vertical-align: middle;
+      }
+      
+      /* Lignes alternées */
+      #metadata table tbody tr:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+      
+      #metadata table tbody tr:nth-child(odd) {
+        background-color: #ffffff;
+      }
+      
+      /* Hover sur les lignes */
+      #metadata table tbody tr:hover {
+        background-color: #f0f7fc;
+      }
+      
+      /* Alignement spécifique pour différents types de données */
+      #metadata table td[data-type='number'] {
+        text-align: right;
+        font-family: monospace;
+      }
+      
+      #metadata table td[data-type='date'] {
+        text-align: center;
+      }
+      
+      #metadata table td[data-type='string'] {
+        text-align: left;
+      }
+      
+      /* Gestion du texte long */
+      #metadata table td {
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      
+      /* Au survol, afficher le texte complet */
+      #metadata table td:hover {
+        white-space: normal;
+        word-wrap: break-word;
+      }
+      
+      /* Style pour la barre de défilement horizontale */
+      #metadata::-webkit-scrollbar {
+        height: 8px;
+      }
+      
+      #metadata::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      
+      #metadata::-webkit-scrollbar-thumb {
+        background: #2980b9;
+        border-radius: 4px;
+      }
+      
+      #metadata::-webkit-scrollbar-thumb:hover {
+        background: #2171a6;
+      }
+      
+      /* Style pour la modale */
+      #metadataModal {
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+      
+      #metadataContent {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      }
+      
+      /* Boutons de la modale */
+      #closeModal,
+      #downloadPdf {
+        padding: 8px 16px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background-color 0.2s;
+        margin: 5px;
+      }
+      
+      #closeModal {
+        background-color: #dc3545;
+        color: white;
+      }
+      
+      #downloadPdf {
+        background-color: #28a745;
+        color: white;
+      }
+      
+      #closeModal:hover {
+        background-color: #c82333;
+      }
+      
+      #downloadPdf:hover {
+        background-color: #218838;
+      }
+      
+      /* Responsive design */
+      @media screen and (max-width: 768px) {
+        #metadata table {
+          font-size: 12px;
+        }
+      
+        #metadata table th,
+        #metadata table td {
+          padding: 6px;
+        }
+      
+        #metadataContent {
+          width: 95%;
+          margin: 10% auto;
+        }
+      }
+      
+      /* Ergonomie pour petits écrans */
+      @media (max-width: 768px) {
+        .header {
+          flex-direction: column;
+          gap: 1rem;
+        }
+      
+        #controls {
+          flex-direction: column;
+          align-items: center;
+        }
+      
+        #map {
+          height: 60vh; /* Réduire la taille sur mobile pour s'adapter */
+        }
+      
+        #uploadForm {
+          width: 100%; /* Assurer que le formulaire s'étende sur toute la largeur */
+        }
+      }
     </style>
   </head>
 
@@ -234,8 +633,8 @@
         <div class="map-control">
           <label for="style-selector">Style de carte:</label>
           <select id="style-selector">
-            <option value="streets-v12">Rues</option>
-            <option value="satellite-streets-v12">Satellite</option>
+            <option value="streets-v12">OpenStreetMap</option>
+            <option value="satellite-streets-v12">GoogleEarth</option>
           </select>
         </div>
 
@@ -277,12 +676,102 @@
         <button id="resetBtn" class="btn btn-danger"><i class="bi bi-trash"></i> Réinitialiser</button>
         <button id="centerBtn" class="btn btn-primary"><i class="bi bi-geo"></i> Recentrer</button>
         <button id="downloadBtn" class="btn btn-success"><i class="bi bi-download"></i> Exporter GeoJSON</button>
+        <button id="uploadBtn" class="btn btn-secondary"><i class="bi bi-upload"></i> Charger des fichiers</button>
+        <button id="extractBtn" class="btn btn-warning"><i class="bi bi-map"></i> Extraire carte</button>
+        <button id="importBtn" class="btn"><i class="bi bi-filetype-json"></i> Importer GeoJSON</button>
+      </div>
+
+      <div id="uploadForm" style="display: none; margin-bottom: 1rem;">
+        <form id="fileForm" enctype="multipart/form-data" method="POST" action="{% url 'authentification:index' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="rasterFile" class="form-label">Charger un raster :</label>
+            <input class="form-control" type="file" id="rasterFile" accept=".tiff,.tif,.png" name="raster" />
+          </div>
+          <button id="submitbtn" type="submit" class="btn btn-primary">Envoyer</button>
+        </form>
+      </div>
+
+      <div class="mb-3" id="geojson">
+        <label for="rasterFile" class="form-label">Charger un fichier GeoJSON :</label>
+        <input class="form-control" type="file" id="geojsonFile" accept=".geojson,application/geo+json" />
+        <button class="btn" id="showMetadataBtn">Afficher les métadonnées</button>
+      </div>
+
+      <div id="metadataModal">
+        <div id="metadataContent">
+          <div class="closedown">
+            <button class="btn" id="closeModal"><i class="bi bi-x-circle"></i> Fermer</button>
+            <button class="btn" id="downloadPdf"><i class="bi bi-filetype-pdf"></i> Télécharger PDF</button>
+          </div> <!-- Bouton pour télécharger le PDF -->
+          <div id="metadata"></div>
+        </div>
+      </div>
+
+      <div class="controls" id="divextract">
+        <div class="map-control">
+          <label for="format">Format de sortie:</label>
+          <select id="format">
+            <option value="png">PNG</option>
+            <option value="jpg">JPG</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="width">Largeur (px):</label>
+          <input type="number" id="width" value="1280" min="1" max="3840" />
+        </div>
+        <div class="control-group">
+          <label for="height">Hauteur (px):</label>
+          <input type="number" id="height" value="1280" min="1" max="2160" />
+        </div>
+        <label for="filename">Nom du fichier:<input type="text" placeholder="Entrer le nom du fichier" value="mapbox-extract" id="filename" /></label>
+        <button id="actionextract" class="btn btn-primary">Extraire la zone sélectionnée</button>
       </div>
 
       <div id="map"></div>
     </div>
 
     <script>
+      document.getElementById('uploadBtn').addEventListener('click', function () {
+        const form = document.getElementById('uploadForm')
+        form.style.display = form.style.display === 'none' ? 'block' : 'none'
+      })
+      
+      document.getElementById('extractBtn').addEventListener('click', function () {
+        const form = document.getElementById('divextract')
+        form.style.display = form.style.display === 'none' ? 'flex' : 'none'
+      })
+      
+      document.getElementById('importBtn').addEventListener('click', function () {
+        const form = document.getElementById('geojson')
+        form.style.display = form.style.display === 'none' ? 'flex' : 'none'
+      })
+      
+      document.getElementById('submitbtn').addEventListener('click', function (event) {
+        event.preventDefault() // Empêche l'envoi du formulaire par défaut
+      
+        const form = document.getElementById('fileForm')
+        const formData = new FormData(form)
+      
+        // Envoie le formulaire en Ajax
+        fetch(form.action, {
+          method: 'POST',
+          body: formData
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Erreur lors de l'envoi des fichiers")
+            }
+            return response.json() // On suppose que la réponse renvoie un succès JSON
+          })
+          .then((data) => {
+            const tilesURL = data.tilesURL // L'URL des tuiles raster générées
+          })
+          .catch((error) => {
+            console.error('Erreur :', error)
+          })
+      })
+      
       mapboxgl.accessToken = 'pk.eyJ1IjoiY2VkcmljZXBhZGllIiwiYSI6ImNtMXE3aTRsNDBibTAycG9qajR5YjFjdm4ifQ.uMkRry3szVbv-cKeqJDBtg'
       
       const map = new mapboxgl.Map({
@@ -291,6 +780,71 @@
         center: [9.9106, 2.9397],
         zoom: 13
       })
+      
+      // Gestionnaire d'événement pour le bouton de soumission
+      document.getElementById('submitbtn').addEventListener('click', function () {
+        document.getElementById('uploadForm').style.display = 'none'
+        loadRaster()
+      })
+      
+      // Fonction pour charger le raster
+      function loadRaster() {
+        // Vérifier si la source existe déjà et la supprimer si nécessaire
+        if (map.getSource('raster-source')) {
+          map.removeLayer('raster-layer')
+          map.removeSource('raster-source')
+        }
+      
+        // Faire une requête à l'API
+        fetch('http://127.0.0.1:8000/api/raster-image/')
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error('Erreur réseau')
+            }
+            return response.json()
+          })
+          .then((data) => {
+            const bounds = data.bounds // [minx, miny, maxx, maxy]
+            const url = data.image
+            // Ajouter la source raster
+            map.addSource('raster-source', {
+              type: 'image',
+              url: url,
+              coordinates: [
+                [bounds[0], bounds[3]], // Coin supérieur gauche
+                [bounds[2], bounds[3]], // Coin supérieur droit
+                [bounds[2], bounds[1]], // Coin inférieur droit
+                [bounds[0], bounds[1]] // Coin inférieur gauche
+              ]
+            })
+      
+            // Ajouter la couche raster
+            map.addLayer({
+              id: 'raster-layer',
+              type: 'raster',
+              source: 'raster-source',
+              paint: {
+                'raster-opacity': 0.8,
+                'raster-fade-duration': 0
+              }
+            })
+      
+            // Ajuster la vue de la carte avec les coordonnées
+            map.fitBounds(
+              [
+                [bounds[0], bounds[1]], // Coin inférieur gauche
+                [bounds[2], bounds[3]] // Coin supérieur droit
+              ],
+              {
+                padding: 50
+              }
+            )
+          })
+          .catch((error) => {
+            console.error('Erreur:', error)
+            alert('Erreur lors du chargement du raster')
+          })
+      }
       
       const nav = new mapboxgl.NavigationControl()
       map.addControl(nav, 'top-left')
@@ -345,6 +899,261 @@
         figureInfoElements = []
       }
       
+      // Fonction pour afficher les métadonnées sous forme de tableau
+      function displayProperties(features) {
+        const propertiesDiv = document.getElementById('metadata')
+        propertiesDiv.innerHTML = '' // Effacer le contenu précédent
+      
+        if (features.length === 0) {
+          propertiesDiv.innerHTML = 'Aucune fonctionnalité à afficher.'
+          return
+        }
+      
+        let tableHTML = '<table border="1" cellpadding="10">'
+        tableHTML += '<thead><tr><th>Feature</th>'
+      
+        const firstFeature = features[0].properties
+        const keys = Object.keys(firstFeature)
+        keys.forEach((key) => {
+          tableHTML += `<th>${key}</th>`
+        })
+      
+        tableHTML += '</tr></thead><tbody>'
+        features.forEach((feature, index) => {
+          const props = feature.properties
+          let rowHTML = `<tr><td>Feature ${index + 1}</td>`
+          keys.forEach((key) => {
+            rowHTML += `<td>${props[key] !== undefined ? props[key] : ''}</td>`
+          })
+          rowHTML += '</tr>'
+          tableHTML += rowHTML
+        })
+      
+        tableHTML += '</tbody></table>'
+        propertiesDiv.innerHTML = tableHTML
+      }
+      
+      // Chargement du fichier GeoJSON et affichage sur la carte
+      document.getElementById('geojsonFile').addEventListener('change', function (event) {
+        const file = event.target.files[0]
+        if (file) {
+          var reader = new FileReader()
+          reader.onload = function (e) {
+            var geojsonData = JSON.parse(e.target.result)
+            if (map.getSource('geojson-data')) {
+              map.removeLayer('point-layer')
+              map.removeLayer('line-layer')
+              map.removeLayer('polygon-layer')
+              map.removeSource('geojson-data')
+            }
+            map.addSource('geojson-data', {
+              type: 'geojson',
+              data: geojsonData
+            })
+      
+            // Ajouter des couches pour différents types de géométries
+            map.addLayer({
+              id: 'point-layer',
+              type: 'circle',
+              source: 'geojson-data',
+              filter: ['==', '$type', 'Point'],
+            })
+      
+            map.addLayer({
+              id: 'line-layer',
+              type: 'line',
+              source: 'geojson-data',
+              filter: ['==', '$type', 'LineString'],
+              paint: {
+                'line-width': 2
+              }
+            })
+      
+            map.addLayer({
+              id: 'polygon-layer',
+              type: 'fill',
+              source: 'geojson-data',
+              filter: ['==', '$type', 'Polygon'],
+              paint: {
+                'fill-opacity': 0.3
+              }
+            })
+      
+            var bounds = new mapboxgl.LngLatBounds()
+            geojsonData.features.forEach(function (feature) {
+              feature.geometry.coordinates[0].forEach(function (coord) {
+                bounds.extend(coord)
+              })
+            })
+            map.fitBounds(bounds, { padding: 20 })
+      
+            displayProperties(geojsonData.features)
+          }
+          reader.readAsText(file)
+        }
+      })
+      
+      // Affichage de la modal des métadonnées
+      document.getElementById('showMetadataBtn').addEventListener('click', function () {
+        document.getElementById('metadataModal').style.display = 'block'
+      })
+      
+      // Fermer la modal
+      document.getElementById('closeModal').addEventListener('click', function () {
+        document.getElementById('metadataModal').style.display = 'none'
+      })
+      
+      // Générer et télécharger un PDF du tableau
+      document.getElementById('downloadPdf').addEventListener('click', function () {
+        const { jsPDF } = window.jspdf
+        const doc = new jsPDF('l', 'mm', 'a4') // Format paysage
+      
+        const table = document.querySelector('#metadata table')
+        if (!table) return
+      
+        // Fonction pour mesurer précisément la largeur du texte
+        function measureTextWidth(text, fontSize) {
+          doc.setFontSize(fontSize)
+          return (doc.getStringUnitWidth(text) * fontSize) / doc.internal.scaleFactor
+        }
+      
+        // Fonction pour calculer la largeur optimale des colonnes
+        function calculateOptimalColumnWidths(header, body) {
+          const pageWidth = doc.internal.pageSize.width
+          const margins = 20 // Marges totales en mm
+          const availableWidth = pageWidth - margins
+          const minColWidth = 15 // Largeur minimum d'une colonne en mm
+      
+          // Calculer la largeur maximale nécessaire pour chaque colonne
+          const colWidths = header[0].map((_, colIndex) => {
+            // Mesurer l'en-tête
+            const headerWidth = measureTextWidth(header[0][colIndex], 10) + 6 // +6 pour le padding
+      
+            // Mesurer chaque cellule du corps
+            const cellWidths = body.map((row) => {
+              const cellText = row[colIndex]?.toString() || ''
+              return measureTextWidth(cellText, 9) + 6 // +6 pour le padding
+            })
+      
+            // Prendre le maximum entre l'en-tête et toutes les cellules
+            const maxWidth = Math.max(headerWidth, ...cellWidths)
+            return Math.max(minColWidth, maxWidth)
+          })
+      
+          // Calculer la largeur totale nécessaire
+          const totalWidth = colWidths.reduce((sum, width) => sum + width, 0)
+      
+          // Si la largeur totale dépasse l'espace disponible, ajuster proportionnellement
+          if (totalWidth > availableWidth) {
+            const ratio = availableWidth / totalWidth
+            return colWidths.map((width) => Math.max(minColWidth, width * ratio))
+          }
+      
+          return colWidths
+        }
+      
+        // Préparation des données
+        const header = []
+        const body = []
+      
+        // Extraction des en-têtes
+        const headerRow = table.querySelector('thead tr')
+        if (headerRow) {
+          const headerCells = headerRow.querySelectorAll('th')
+          header.push([...headerCells].map((cell) => cell.innerText.trim()))
+        }
+      
+        // Extraction du corps
+        const bodyRows = table.querySelectorAll('tbody tr')
+        bodyRows.forEach((row) => {
+          const cells = row.querySelectorAll('td')
+          body.push([...cells].map((cell) => cell.innerText.trim()))
+        })
+      
+        // Calcul des largeurs optimales
+        const columnWidths = calculateOptimalColumnWidths(header, body)
+      
+        // Configuration des styles du tableau
+        const tableConfig = {
+          head: header,
+          body: body,
+          startY: 30,
+          theme: 'grid',
+          styles: {
+            fontSize: 9,
+            cellPadding: 3,
+            overflow: 'linebreak',
+            valign: 'middle',
+            lineColor: [80, 80, 80],
+            lineWidth: 0.1
+          },
+          headStyles: {
+            fillColor: [41, 128, 185],
+            textColor: [255, 255, 255],
+            fontSize: 10,
+            fontStyle: 'bold',
+            halign: 'center',
+            valign: 'middle'
+          },
+          bodyStyles: {
+            textColor: [50, 50, 50],
+            halign: 'left'
+          },
+          alternateRowStyles: {
+            fillColor: [245, 245, 245]
+          },
+          columnStyles: {},
+          margin: { top: 30, right: 10, bottom: 20, left: 10 },
+          tableLineWidth: 0.1,
+          tableLineColor: [80, 80, 80],
+          didDrawPage: function (data) {
+            // En-tête de page
+            if (data.pageCount === 1) {
+              doc.setFontSize(18)
+              doc.text('Métadonnées GeoJSON', 14, 15)
+      
+              const today = new Date().toLocaleDateString('fr-FR')
+              doc.setFontSize(10)
+              doc.text(`Date de génération : ${today}`, 14, 22)
+            }
+      
+            // Pied de page
+            const pageNumber = `Page ${data.pageNumber} / ${data.pageCount}`
+            const today = new Date().toLocaleDateString('fr-FR')
+            doc.setFontSize(8)
+            doc.text(pageNumber, data.settings.margin.left, doc.internal.pageSize.height - 10)
+            doc.text(`Document généré le ${today}`, 14, doc.internal.pageSize.height - 10)
+          },
+          willDrawCell: function (data) {
+            // Ajuster le style des cellules selon leur contenu
+            if (data.section === 'body') {
+              // Si le contenu est un nombre, l'aligner à droite
+              if (!isNaN(data.cell.raw) && data.cell.raw !== '') {
+                data.cell.styles.halign = 'right'
+              }
+              // Si le contenu est une date, l'aligner au centre
+              else if (!isNaN(Date.parse(data.cell.raw))) {
+                data.cell.styles.halign = 'center'
+              }
+            }
+          }
+        }
+      
+        // Application des largeurs calculées
+        columnWidths.forEach((width, index) => {
+          tableConfig.columnStyles[index] = {
+            cellWidth: width,
+            minCellWidth: 15
+          }
+        })
+      
+        // Génération du tableau
+        doc.autoTable(tableConfig)
+      
+        // Sauvegarde du PDF
+        doc.save('metadata-geojson.pdf')
+      })
+      
       // Fonction pour mettre à jour les informations de surface ou de longueur
       function updateInfo() {
         var data = draw.getAll()
@@ -392,7 +1201,7 @@
       
       // Correction de la gestion des couches GeoJSON
       const geojsonLayers = {
-        couche1: "{% static 'authentification/cadastral2.geojson' %}",
+        couche1: "{% static 'authentification/geo.geojson' %}",
         couche2: "{% static 'authentification/TC_18.geojson' %}",
         couche3: "{% static 'authentification/TC_14.geojson' %}"
       }
@@ -466,6 +1275,30 @@
             loadedLayers[id] = true // Enregistrer que la couche est chargée
           })
           .catch((error) => console.error('Erreur lors du chargement du GeoJSON:', error))
+      }
+      
+      function getGeoJsonForLayers(loadedLayers) {
+        let combinedFeatures = []
+      
+        // Parcourir toutes les couches chargées
+        for (const layerId in loadedLayers) {
+          if (loadedLayers.hasOwnProperty(layerId)) {
+            const source = map.getSource(layerId)
+      
+            if (source && source.type === 'geojson') {
+              const data = source._data // Récupérer les données GeoJSON de la source
+              if (data && data.features) {
+                combinedFeatures = combinedFeatures.concat(data.features) // Combiner les features
+              }
+            }
+          }
+        }
+      
+        // Construire un objet GeoJSON combiné
+        return {
+          type: 'FeatureCollection',
+          features: combinedFeatures
+        }
       }
       
       function removeGeoJsonLayer(id) {
@@ -570,6 +1403,51 @@
       
       // Ajouter l'écouteur d'événements au bouton de téléchargement
       document.getElementById('downloadBtn').addEventListener('click', downloadGeoJSON)
+      
+      document.getElementById('actionextract').addEventListener('click', async function () {
+        document.getElementById('divextract').style.display = 'none'
+        const features = draw.getAll()
+        if (features.features.length === 0) {
+          alert("Veuillez d'abord dessiner une zone sur la carte.")
+          return
+        }
+      
+        const bbox = turf.bbox(features.features[0])
+        const format = document.getElementById('format').value
+        const width = document.getElementById('width').value
+        const height = document.getElementById('height').value
+        const name = document.getElementById('filename').value
+      
+        const lngLatCenter = [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2]
+      
+        const zoom = map.getZoom()
+        // Construire l'URL d'API statique
+        const combinedGeoJson = getGeoJsonForLayers(loadedLayers)
+        features.features.shift()
+        combinedGeoJson.features.forEach((feature) => {
+          feature.properties = feature.properties || {}
+          feature.properties['stroke'] = '#FF0000' // Couleur rouge pour les lignes
+          feature.properties['stroke-width'] = 2 // Épaisseur des lignes
+          feature.properties['fill'] = '#FF0000' // Couleur rouge pour le remplissage
+          feature.properties['fill-opacity'] = 0.5 // Transparence du remplissage
+        })
+        const geojsonFeatures = encodeURIComponent(JSON.stringify(combinedGeoJson))
+        const url = `https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/static/geojson(${geojsonFeatures})/${lngLatCenter[0]},${lngLatCenter[1]},${zoom}/${width}x${height}@2x?access_token=${mapboxgl.accessToken}`
+      
+        try {
+          const response = await fetch(url)
+          const blob = await response.blob()
+          const link = document.createElement('a')
+          link.href = URL.createObjectURL(blob)
+          link.download = `${name}.${format}`
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+        } catch (error) {
+          console.error("Erreur lors du téléchargement de l'image:", error)
+          alert("Une erreur est survenue lors de l'extraction de l'image.")
+        }
+      })
     </script>
   </body>
 </html>

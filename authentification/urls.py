@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from . import views
 
 app_name = 'authentification'
@@ -11,5 +11,5 @@ urlpatterns = [
     path('index/', views.index, name='index'),
     path('profil/', views.profil, name='profil'),
     path('edit_profil/', views.edit_profil, name='edit'),
-    path('JsonView/', views.JsonView, name='JsonView'),
+    re_path(r'^raster_extrait.tif', views.index, name='rester_extrait'),
 ]
