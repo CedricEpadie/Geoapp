@@ -4,7 +4,6 @@ from django.core.mail import send_mail
 from osgeo import gdal
 import random
 from django.conf import settings
-import os
 import logging
 
 logger = logging.getLogger(__name__)

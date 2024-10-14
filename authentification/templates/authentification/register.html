@@ -1,66 +1,50 @@
 {% extends 'authentification/base.html' %}
 
-{% block title %} Register {% endblock %}
+{% block title %}
+  Register
+{% endblock %}
 
 {% block header %}
-
-    <h1>Hi, welcome create an account to continue.</h1>
-    <p>Already have an account? <span class="text-white"><a href="{% url 'authentification:login' %}" class="text-white">Log in</a></span></p>
-
+  <h1>Hi, welcome create an account to continue.</h1>
+  <p>
+    Already have an account? <span class="text-white"><a href="{% url 'authentification:login' %}" class="text-white">Log in</a></span>
+  </p>
 {% endblock %}
 
 {% block content %}
-
-{% if error %}
-
+  {% if error %}
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        {{ error }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      {{ error }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+  {% endif %}
 
-{% endif %}
-
-<form method="POST" action="{% url 'authentification:register' %}">
+  <form method="POST" action="{% url 'authentification:register' %}">
     {% csrf_token %}
-    <input type="text"
-    name="name"
-    placeholder="Your Name"
-    required>
+    <input type="text" name="name" placeholder="Your Name" required />
 
-    <input type="text"
-    name="surname"
-    placeholder="Your surname"
-    required>
+    <input type="text" name="surname" placeholder="Your surname" required />
 
-    <input type="email"
-    name="email"
-    placeholder="Your email"
-    required>
+    <input type="email" name="email" placeholder="Your email" required />
 
-    <input 
-    type="text" 
-    name="username" 
-    placeholder="Username"
-    required>
+    <input type="text" name="username" placeholder="Username" required />
 
-    <input 
-    type="password" 
-    name="password" 
-    placeholder="Password"
-    minlength="6"
-    required>
+    <input type="password" name="password" placeholder="Password" minlength="6" required />
     <p>Password must be at least 6 characters</p>
 
-    <input type="text"
-    name="profession"
-    placeholder="profession"
-    required>
+    <select name="profession" required>
+      <option value="" disabled selected>Choisir une profession</option>
+      <option value="Topographe">Topographe</option>
+      <option value="Urbaniste">Urbaniste</option>
+      <option value="Environnementaliste">Environnementaliste</option>
+      <option value="Génie civil">Génie civil</option>
+      <option value="Etudiant">Etudiant</option>
+    </select>
 
     <button type="submit">Create Account</button>
 
     <p>
-        You acknowledge that you read, and agree, to our <a>Terms of Service</a> and our <a>Privacy Policy</a>.
+      You acknowledge that you read, and agree, to our <a>Terms of Service</a> and our <a>Privacy Policy</a>.
     </p>
-</form>
-
+  </form>
 {% endblock %}

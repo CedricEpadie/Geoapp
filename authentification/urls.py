@@ -11,5 +11,4 @@ urlpatterns = [
     path('index/', views.index, name='index'),
     path('profil/', views.profil, name='profil'),
     path('edit_profil/', views.edit_profil, name='edit'),
-    re_path(r'^raster_extrait.tif', views.index, name='rester_extrait'),
 ]

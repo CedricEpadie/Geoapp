@@ -15,6 +15,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/geotiff@1.0.0-beta.8/dist/geotiff.bundle.min.js"></script>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
       
@@ -450,7 +451,7 @@
         background-color: white;
         font-size: 14px;
         border: 1px solid #dee2e6;
-        color: black
+        color: black;
       }
       
       /* En-têtes du tableau */
@@ -542,6 +543,11 @@
       
       #metadata::-webkit-scrollbar-thumb:hover {
         background: #2171a6;
+      }
+      
+      #toggleContainer {
+        margin-top: 10px;
+        display: none;
       }
       
       /* Style pour la modale */
@@ -638,19 +644,6 @@
           </select>
         </div>
 
-        <div class="layers-control">
-          <details>
-            <summary>
-              <i class="bi bi-layers"></i> Couches
-            </summary>
-            <div class="layers-list">
-              <label><input type="checkbox" value="couche1" />Couche 1</label>
-              <label><input type="checkbox" value="couche2" />Couche 2</label>
-              <label><input type="checkbox" value="couche3" />Couche 3</label>
-            </div>
-          </details>
-        </div>
-
         <nav class="user-menu">
           <details>
             <summary>
@@ -686,15 +679,19 @@
           {% csrf_token %}
           <div class="mb-3">
             <label for="rasterFile" class="form-label">Charger un raster :</label>
-            <input class="form-control" type="file" id="rasterFile" accept=".tiff,.tif,.png" name="raster" />
+            <input class="form-control" type="file" id="rasterFile" accept=".tiff,.tif" name="raster" />
           </div>
-          <button id="submitbtn" type="submit" class="btn btn-primary">Envoyer</button>
+          <div id="toggleContainer">
+            <input type="checkbox" id="toggleImage" checked />
+            <label for="toggleImage">Show GeoTIFF</label>
+          </div>
         </form>
       </div>
 
       <div class="mb-3" id="geojson">
         <label for="rasterFile" class="form-label">Charger un fichier GeoJSON :</label>
         <input class="form-control" type="file" id="geojsonFile" accept=".geojson,application/geo+json" />
+        <label for="toggleGeojson" style="gap: 5px;"><input type="checkbox" id="toggleGeojson" checked />   Afficher GeoJSON</label>
         <button class="btn" id="showMetadataBtn">Afficher les métadonnées</button>
       </div>
 
@@ -747,31 +744,6 @@
         form.style.display = form.style.display === 'none' ? 'flex' : 'none'
       })
       
-      document.getElementById('submitbtn').addEventListener('click', function (event) {
-        event.preventDefault() // Empêche l'envoi du formulaire par défaut
-      
-        const form = document.getElementById('fileForm')
-        const formData = new FormData(form)
-      
-        // Envoie le formulaire en Ajax
-        fetch(form.action, {
-          method: 'POST',
-          body: formData
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Erreur lors de l'envoi des fichiers")
-            }
-            return response.json() // On suppose que la réponse renvoie un succès JSON
-          })
-          .then((data) => {
-            const tilesURL = data.tilesURL // L'URL des tuiles raster générées
-          })
-          .catch((error) => {
-            console.error('Erreur :', error)
-          })
-      })
-      
       mapboxgl.accessToken = 'pk.eyJ1IjoiY2VkcmljZXBhZGllIiwiYSI6ImNtMXE3aTRsNDBibTAycG9qajR5YjFjdm4ifQ.uMkRry3szVbv-cKeqJDBtg'
       
       const map = new mapboxgl.Map({
@@ -781,71 +753,104 @@
         zoom: 13
       })
       
-      // Gestionnaire d'événement pour le bouton de soumission
-      document.getElementById('submitbtn').addEventListener('click', function () {
-        document.getElementById('uploadForm').style.display = 'none'
-        loadRaster()
-      })
+      async function convertGeoTIFFToPNG(file) {
+        try {
+          const arrayBuffer = await file.arrayBuffer()
+          const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer)
+          const image = await tiff.getImage()
+          const width = image.getWidth()
+          const height = image.getHeight()
+          const data = await image.readRasters()
       
-      // Fonction pour charger le raster
-      function loadRaster() {
-        // Vérifier si la source existe déjà et la supprimer si nécessaire
-        if (map.getSource('raster-source')) {
-          map.removeLayer('raster-layer')
-          map.removeSource('raster-source')
+          if (!data || !data[0] || !data[1] || !data[2]) {
+            throw new Error('Les données raster sont manquantes ou incomplètes.')
+          }
+      
+          const canvas = document.createElement('canvas')
+          canvas.width = width
+          canvas.height = height
+          const ctx = canvas.getContext('2d')
+      
+          const imageData = ctx.createImageData(width, height)
+          for (let i = 0; i < width * height; i++) {
+            imageData.data[i * 4] = data[0][i] || 0
+            imageData.data[i * 4 + 1] = data[1][i] || 0
+            imageData.data[i * 4 + 2] = data[2][i] || 0
+            imageData.data[i * 4 + 3] = 255
+          }
+          ctx.putImageData(imageData, 0, 0)
+      
+          return {
+            url: canvas.toDataURL('image/png'),
+            bbox: image.getBoundingBox()
+          }
+        } catch (error) {
+          console.error('Erreur lors de la conversion du GeoTIFF en PNG:', error)
+          throw error
         }
-      
-        // Faire une requête à l'API
-        fetch('http://127.0.0.1:8000/api/raster-image/')
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error('Erreur réseau')
-            }
-            return response.json()
-          })
-          .then((data) => {
-            const bounds = data.bounds // [minx, miny, maxx, maxy]
-            const url = data.image
-            // Ajouter la source raster
-            map.addSource('raster-source', {
-              type: 'image',
-              url: url,
-              coordinates: [
-                [bounds[0], bounds[3]], // Coin supérieur gauche
-                [bounds[2], bounds[3]], // Coin supérieur droit
-                [bounds[2], bounds[1]], // Coin inférieur droit
-                [bounds[0], bounds[1]] // Coin inférieur gauche
-              ]
-            })
-      
-            // Ajouter la couche raster
-            map.addLayer({
-              id: 'raster-layer',
-              type: 'raster',
-              source: 'raster-source',
-              paint: {
-                'raster-opacity': 0.8,
-                'raster-fade-duration': 0
-              }
-            })
-      
-            // Ajuster la vue de la carte avec les coordonnées
-            map.fitBounds(
-              [
-                [bounds[0], bounds[1]], // Coin inférieur gauche
-                [bounds[2], bounds[3]] // Coin supérieur droit
-              ],
-              {
-                padding: 50
-              }
-            )
-          })
-          .catch((error) => {
-            console.error('Erreur:', error)
-            alert('Erreur lors du chargement du raster')
-          })
       }
       
+      document.getElementById('rasterFile').addEventListener('change', async function (event) {
+        document.getElementById('uploadForm').style.display = 'none'
+        const file = event.target.files[0]
+        if (!file) return
+      
+        const arrayBuffer = await file.arrayBuffer()
+        const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer)
+        const image = await tiff.getImage()
+      
+        const { url: imageUrl, bbox } = await convertGeoTIFFToPNG(file)
+        const [minX, minY, maxX, maxY] = bbox
+      
+        // Supprimer la source et la couche existantes si elles existent
+        if (map.getLayer('geotiff')) {
+          map.removeLayer('geotiff')
+        }
+        if (map.getSource('geotiff')) {
+          map.removeSource('geotiff')
+        }
+      
+        map.addSource('geotiff', {
+          type: 'image',
+          url: imageUrl,
+          coordinates: [
+            [minX, maxY],
+            [maxX, maxY],
+            [maxX, minY],
+            [minX, minY]
+          ]
+        })
+      
+        map.addLayer({
+          id: 'geotiff',
+          source: 'geotiff',
+          type: 'raster',
+          paint: {
+            'raster-opacity': 1
+          }
+        })
+      
+        map.fitBounds([
+          [minX, minY],
+          [maxX, maxY]
+        ])
+      
+        // Afficher la checkbox une fois l'image chargée
+        document.getElementById('toggleContainer').style.display = 'block'
+      }) // Gérer le toggle de la visibilité de l'image
+      document.getElementById('toggleImage').addEventListener('change', function (e) {
+        if (map.getLayer('geotiff')) {
+          map.setLayoutProperty('geotiff', 'visibility', e.target.checked ? 'visible' : 'none')
+        }
+      })
+      
+      // Gérer le toggle de la visibilité de l'image
+      document.getElementById('toggleImage').addEventListener('change', function (e) {
+        if (map.getLayer('geotiff')) {
+          map.setLayoutProperty('geotiff', 'visibility', e.target.checked ? 'visible' : 'none')
+        }
+      })
+            
       const nav = new mapboxgl.NavigationControl()
       map.addControl(nav, 'top-left')
       
@@ -932,32 +937,35 @@
         tableHTML += '</tbody></table>'
         propertiesDiv.innerHTML = tableHTML
       }
-      
-      // Chargement du fichier GeoJSON et affichage sur la carte
+
       document.getElementById('geojsonFile').addEventListener('change', function (event) {
-        const file = event.target.files[0]
+        const file = event.target.files[0];
         if (file) {
-          var reader = new FileReader()
+          var reader = new FileReader();
           reader.onload = function (e) {
-            var geojsonData = JSON.parse(e.target.result)
+            var geojsonData = JSON.parse(e.target.result);
+      
+            // Remove existing layers and source if they exist
             if (map.getSource('geojson-data')) {
-              map.removeLayer('point-layer')
-              map.removeLayer('line-layer')
-              map.removeLayer('polygon-layer')
-              map.removeSource('geojson-data')
+              map.removeLayer('point-layer');
+              map.removeLayer('line-layer');
+              map.removeLayer('polygon-layer');
+              map.removeSource('geojson-data');
             }
+      
+            // Add the GeoJSON data source
             map.addSource('geojson-data', {
               type: 'geojson',
               data: geojsonData
-            })
+            });
       
-            // Ajouter des couches pour différents types de géométries
+            // Add point, line, and polygon layers for the GeoJSON data
             map.addLayer({
               id: 'point-layer',
               type: 'circle',
               source: 'geojson-data',
-              filter: ['==', '$type', 'Point'],
-            })
+              filter: ['==', '$type', 'Point']
+            });
       
             map.addLayer({
               id: 'line-layer',
@@ -967,7 +975,7 @@
               paint: {
                 'line-width': 2
               }
-            })
+            });
       
             map.addLayer({
               id: 'polygon-layer',
@@ -977,21 +985,45 @@
               paint: {
                 'fill-opacity': 0.3
               }
-            })
+            });
       
-            var bounds = new mapboxgl.LngLatBounds()
+            // Fit the map to the bounds of the GeoJSON data
+            var bounds = new mapboxgl.LngLatBounds();
             geojsonData.features.forEach(function (feature) {
               feature.geometry.coordinates[0].forEach(function (coord) {
-                bounds.extend(coord)
-              })
-            })
-            map.fitBounds(bounds, { padding: 20 })
+                bounds.extend(coord);
+              });
+            });
+            map.fitBounds(bounds, { padding: 20 });
       
-            displayProperties(geojsonData.features)
-          }
-          reader.readAsText(file)
+            displayProperties(geojsonData.features);
+      
+            // Handle the GeoJSON layer toggle based on the checkbox
+            const toggleGeojson = document.getElementById('toggleGeojson');
+            toggleGeojson.addEventListener('change', function () {
+              if (toggleGeojson.checked) {
+                // Add layers if checkbox is checked
+                map.setLayoutProperty('point-layer', 'visibility', 'visible');
+                map.setLayoutProperty('line-layer', 'visibility', 'visible');
+                map.setLayoutProperty('polygon-layer', 'visibility', 'visible');
+              } else {
+                // Hide layers if checkbox is unchecked
+                map.setLayoutProperty('point-layer', 'visibility', 'none');
+                map.setLayoutProperty('line-layer', 'visibility', 'none');
+                map.setLayoutProperty('polygon-layer', 'visibility', 'none');
+              }
+            });
+      
+            // Initially set the visibility based on the checkbox state
+            if (!toggleGeojson.checked) {
+              map.setLayoutProperty('point-layer', 'visibility', 'none');
+              map.setLayoutProperty('line-layer', 'visibility', 'none');
+              map.setLayoutProperty('polygon-layer', 'visibility', 'none');
+            }
+          };
+          reader.readAsText(file);
         }
-      })
+      });
       
       // Affichage de la modal des métadonnées
       document.getElementById('showMetadataBtn').addEventListener('click', function () {
@@ -1199,13 +1231,6 @@
         })
       })
       
-      // Correction de la gestion des couches GeoJSON
-      const geojsonLayers = {
-        couche1: "{% static 'authentification/geo.geojson' %}",
-        couche2: "{% static 'authentification/TC_18.geojson' %}",
-        couche3: "{% static 'authentification/TC_14.geojson' %}"
-      }
-      
       let loadedLayers = {}
       
       function loadGeoJsonLayer(id, url) {
@@ -1357,24 +1382,22 @@
       
       // Fonction pour télécharger le GeoJSON
       function downloadGeoJSON() {
-        // Récupérer les features des couches actives
-        const activeLayersFeatures = Object.keys(loadedLayers).flatMap((layerId) => {
-          const source = map.getSource(layerId)
-          return source._data.features || []
-        })
+        // Récupérer les features des couches déjà chargées en utilisant getGeoJsonForLayers
+        const loadedLayersGeoJSON = getGeoJsonForLayers(loadedLayers)
+        const loadedLayersFeatures = loadedLayersGeoJSON.features || []
       
         // Récupérer les features dessinées
         const drawnFeatures = draw.getAll().features
       
         // Combiner toutes les features
-        const allFeatures = [...activeLayersFeatures, ...drawnFeatures]
+        const allFeatures = [...loadedLayersFeatures, ...drawnFeatures]
       
         if (allFeatures.length === 0) {
-          alert('Impossible! Veuillez dessiner des éléments')
+          alert('Impossible! Aucun élément à télécharger. Veuillez charger des couches ou dessiner des éléments.')
           return
         }
       
-        // Créer l'objet GeoJSON
+        // Créer l'objet GeoJSON final
         const geoJSON = {
           type: 'FeatureCollection',
           features: allFeatures

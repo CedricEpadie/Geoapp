@@ -72,12 +72,8 @@ WSGI_APPLICATION = 'idsproject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',  # Utilisez PostGIS comme backend
-        'NAME': 'spatial_db',  # Nom de votre base de données PostgreSQL
-        'USER': 'postgres',  # Remplacez par votre nom d'utilisateur PostgreSQL
-        'PASSWORD': 'cedric',  # Remplacez par votre mot de passe PostgreSQL
-        'HOST': 'localhost',  # Ou l'adresse de votre serveur PostgreSQL
-        'PORT': '5432',  # Port par défaut pour PostgreSQL
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
