@@ -2,1475 +2,1391 @@
 
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GeoApp - Carte Interactive</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl/2.15.0/mapbox-gl.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl-draw/1.4.3/mapbox-gl-draw.css" type="text/css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl/2.15.0/mapbox-gl.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl-draw/1.4.3/mapbox-gl-draw.js"></script>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="shortcut icon" href="{% static 'authentification/LogoTest1.png' %}" type="image/x-icon">
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.2.0/mapbox-gl-draw.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.2.0/mapbox-gl-draw.css"
+        rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/geotiff"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/geotiff@1.0.0-beta.8/dist/geotiff.bundle.min.js"></script>
+
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
-      
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      
-      body {
-        background: radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(36, 36, 36, 1) 100%);
-        font-family: 'Orbitron', sans-serif;
-        color: #e0e0e0;
-        min-height: 100vh;
-      }
-      
-      body::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(45deg, #00ffc8, #0d7377, #212121);
-        filter: blur(150px);
-        z-index: -1;
-        animation: rotate 20s infinite linear;
-      }
-      
-      @keyframes rotate {
-        0% {
-          transform: rotate(0deg);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-      
-        100% {
-          transform: rotate(360deg);
+
+        body {
+            display: flex;
+            flex-direction: column;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            color: #00ffc8;
+            height: 100vh;
+            width: 100vw;
         }
-      }
-      
-      .container-fluid {
-        max-width: 1400px;
-        padding: 2rem 1.5rem;
-      }
-      
-      h1 {
-        color: #00ffc8;
-        font-weight: 700;
-        text-shadow: 0 0 10px rgba(0, 255, 200, 0.5);
-        margin-bottom: 0;
-      }
-      
-      .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-      }
-      
-      .map-control {
-        background-color: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(5px);
-        border-radius: 10px;
-        padding: 0.75rem 1rem;
-        border: 1px solid rgba(0, 255, 200, 0.3);
-      }
-      
-      .map-control label {
-        color: #00ffc8;
-        margin-right: 0.5rem;
-      }
-      
-      .map-control select {
-        background-color: rgba(0, 0, 0, 0.5);
-        color: #e0e0e0;
-        border: 1px solid #00ffc8;
-        border-radius: 5px;
-        padding: 0.25rem 0.5rem;
-      }
-      
-      #controls {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-      }
-      
-      .btn {
-        border-radius: 8px;
-        background-color: rgba(0, 0, 0, 0.5);
-        color: #00ffc8;
-        border: 1px solid #00ffc8;
-        padding: 0.75rem 1.25rem;
-        transition: all 0.3s ease;
-        text-shadow: 0 0 5px rgba(0, 255, 200, 0.5);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-      
-      .btn:hover {
-        background-color: rgba(0, 255, 200, 0.2);
-        box-shadow: 0 0 15px rgba(0, 255, 200, 0.5);
-        transform: translateY(-2px);
-      }
-      
-      #map {
-        height: 500px;
-        border: 2px solid #00ffc8;
-        border-radius: 10px;
-        box-shadow: 0 0 20px rgba(0, 255, 200, 0.2);
-      }
-      
-      .layers-control {
-        background-color: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(5px);
-        border-radius: 10px;
-        padding: 1rem;
-        border: 1px solid rgba(0, 255, 200, 0.3);
-        margin-bottom: 1rem;
-        width: 150px;
-      }
-      
-      .layers-control summary {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: #00ffc8;
-        cursor: pointer;
-      }
-      
-      .layers-control summary::-webkit-details-marker {
-        display: none;
-      }
-      
-      .layers-list {
-        position: absolute;
-        right: 0;
-        background-color: rgba(0, 0, 0, 0.8);
-        border: 1px solid rgba(0, 255, 200, 0.3);
-        border-radius: 8px;
-        padding: 0.5rem;
-        margin-top: 0.5rem;
-      }
-      
-      .layers-list label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.25rem 0;
-      }
-      
-      .figure-info {
-        position: absolute;
-        background-color: white;
-        padding: 5px;
-        border-radius: 3px;
-        font-size: 12px;
-        pointer-events: none;
-        margin-bottom: -10px;
-        color: black;
-      }
-      
-      .user-menu summary {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: #00ffc8;
-        cursor: pointer;
-      }
-      
-      .user-menu summary i {
-        font-size: 1.5rem;
-      }
-      
-      .user-menu ul {
-        position: absolute;
-        right: 0;
-        background-color: rgba(0, 0, 0, 0.8);
-        border: 1px solid rgba(0, 255, 200, 0.3);
-        border-radius: 8px;
-        padding: 0.5rem;
-        margin-top: 0.5rem;
-      }
-      
-      .user-menu li {
-        padding: 0.5rem 1rem;
-        list-style: none;
-      }
-      
-      .user-menu a {
-        color: #e0e0e0;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-      
-      .user-menu li:hover {
-        background-color: rgba(0, 255, 200, 0.2);
-      }
-      
-      @media (max-width: 768px) {
-        .header {
-          flex-direction: column;
-          gap: 1rem;
+
+        header {
+            background-color: rgba(0, 0, 0, 0.8);
+            transition: 0.3s ease-in-out;
+            padding: 1rem 0;
+            z-index: 1000;
+            position: relative;
         }
-      
-        #controls {
-          justify-content: center;
+
+        header:hover {
+            background-color: rgba(20, 20, 20, 1);
         }
-      }
-      
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      
-      body {
-        background: radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(36, 36, 36, 1) 100%);
-        font-family: 'Orbitron', sans-serif;
-        color: #e0e0e0;
-        height: 100vh; /* Assurer que la page occupe toute la hauteur de l'écran */
-        display: flex;
-        flex-direction: column;
-      }
-      
-      .container-fluid {
-        max-width: 1400px;
-        padding: 1rem 1.5rem;
-        flex-grow: 1; /* Permet à la carte et aux autres éléments de s'étendre */
-      }
-      
-      .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-      }
-      
-      h1 {
-        color: #00ffc8;
-        font-weight: 700;
-        text-shadow: 0 0 10px rgba(0, 255, 200, 0.5);
-        margin-bottom: 0;
-      }
-      
-      #controls {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin-bottom: 1rem;
-        justify-content: center;
-      }
-      
-      /* Alignement des nouveaux éléments avec le thème */
-      .controls {
-        flex-wrap: wrap;
-        justify-content: space-around;
-        gap: 1rem;
-        background-color: rgba(0, 0, 0, 0.5);
-        border: 1px solid #00ffc8;
-        padding: 1rem;
-        border-radius: 10px;
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 0 15px rgba(0, 255, 200, 0.5);
-        width: 100%;
-        display: none;
-      }
-      
-      #geojson {
-        flex-wrap: wrap;
-        justify-content: space-around;
-        gap: 1rem;
-        background-color: rgba(0, 0, 0, 0.5);
-        border: 1px solid #00ffc8;
-        padding: 1rem;
-        border-radius: 10px;
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 0 15px rgba(0, 255, 200, 0.5);
-        width: 100%;
-        display: none;
-      }
-      
-      /* Style des inputs de type nombre et texte */
-      input[type='number'],
-      input[type='text'] {
-        background-color: rgba(0, 0, 0, 0.5);
-        color: #e0e0e0;
-        border: 1px solid #00ffc8;
-        border-radius: 5px;
-        padding: 0.5rem;
-        width: 100%;
-        box-shadow: 0 0 10px rgba(0, 255, 200, 0.3);
-        transition: border-color 0.3s ease;
-      }
-      
-      input[type='number']:focus,
-      input[type='text']:focus {
-        border-color: #00ffc8;
-        outline: none;
-      }
-      
-      /* Style des labels */
-      label {
-        color: #00ffc8;
-        font-size: 1rem;
-        margin-bottom: 0.5rem;
-        margin-bottom: 5px;
-      }
-      
-      /* Harmonisation des boutons */
-      .btn {
-        border-radius: 8px;
-        background-color: rgba(0, 0, 0, 0.5);
-        color: #00ffc8;
-        border: 1px solid #00ffc8;
-        padding: 0.75rem 1.25rem;
-        transition: all 0.3s ease;
-        text-shadow: 0 0 5px rgba(0, 255, 200, 0.5);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-      
-      .btn:hover {
-        background-color: rgba(0, 255, 200, 0.2);
-        box-shadow: 0 0 15px rgba(0, 255, 200, 0.5);
-        transform: translateY(-2px);
-      }
-      
-      /* Contrôle de sélection (dropdown) */
-      select {
-        background-color: rgba(0, 0, 0, 0.5);
-        color: #e0e0e0;
-        border: 1px solid #00ffc8;
-        border-radius: 5px;
-        padding: 0.5rem;
-        width: 100%;
-        box-shadow: 0 0 10px rgba(0, 255, 200, 0.3);
-        transition: border-color 0.3s ease;
-      }
-      
-      select:focus {
-        border-color: #00ffc8;
-        outline: none;
-      }
-      
-      /* Style spécifique pour le bouton de soumission dans le formulaire */
-      #submitbtn {
-        width: 100%;
-        margin-top: 1rem;
-      }
-      
-      /* Taille de la carte */
-      #map {
-        height: 70vh; /* La carte occupe 70% de la hauteur de l'écran */
-        border: 2px solid #00ffc8;
-        border-radius: 10px;
-        box-shadow: 0 0 20px rgba(0, 255, 200, 0.2);
-        margin-bottom: 1.5rem;
-      }
-      
-      /* Formulaire pour le raster et GeoJSON */
-      #uploadForm {
-        background-color: rgba(0, 0, 0, 0.5);
-        border: 1px solid #00ffc8;
-        padding: 1rem;
-        border-radius: 10px;
-        margin-top: 1rem;
-        display: none;
-      }
-      
-      #metadataModal {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.4);
-      }
-      
-      #metadataContent {
-        background-color: #fefefe;
-        margin: 15% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 80%;
-        height: 70%;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-      }
-      
-      #closeModal,
-      #downloadPdf {
-        background-color: red;
-        color: white;
-        border: none;
-        padding: 10px;
-        margin-left: 10px;
-        cursor: pointer;
-      }
-      
-      .closedown {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 5px;
-        margin-bottom: 1rem;
-      }
-      
-      #downloadPdf {
-        background-color: green;
-      }
-      
-      /* Style du conteneur du tableau */
-      #metadata {
-        margin: 20px 0;
-        width: 100%;
-        overflow-x: auto;
-      }
-      
-      /* Style du tableau */
-      #metadata table {
-        width: 100%;
-        border-collapse: collapse;
-        background-color: white;
-        font-size: 14px;
-        border: 1px solid #dee2e6;
-        color: black;
-      }
-      
-      /* En-têtes du tableau */
-      #metadata table thead tr th {
-        background-color: #2980b9;
-        color: white;
-        font-weight: 600;
-        padding: 12px 8px;
-        text-align: left;
-        border: 1px solid #2171a6;
-        white-space: nowrap;
-        position: sticky;
-        top: 0;
-        z-index: 1;
-      }
-      
-      /* Première colonne (Feature) */
-      #metadata table th:first-child,
-      #metadata table td:first-child {
-        position: sticky;
-        left: 0;
-        background-color: inherit;
-        z-index: 2;
-        min-width: 100px;
-      }
-      
-      /* Cellules du tableau */
-      #metadata table td {
-        padding: 8px;
-        border: 1px solid #dee2e6;
-        vertical-align: middle;
-      }
-      
-      /* Lignes alternées */
-      #metadata table tbody tr:nth-child(even) {
-        background-color: #f8f9fa;
-      }
-      
-      #metadata table tbody tr:nth-child(odd) {
-        background-color: #ffffff;
-      }
-      
-      /* Hover sur les lignes */
-      #metadata table tbody tr:hover {
-        background-color: #f0f7fc;
-      }
-      
-      /* Alignement spécifique pour différents types de données */
-      #metadata table td[data-type='number'] {
-        text-align: right;
-        font-family: monospace;
-      }
-      
-      #metadata table td[data-type='date'] {
-        text-align: center;
-      }
-      
-      #metadata table td[data-type='string'] {
-        text-align: left;
-      }
-      
-      /* Gestion du texte long */
-      #metadata table td {
-        max-width: 300px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      
-      /* Au survol, afficher le texte complet */
-      #metadata table td:hover {
-        white-space: normal;
-        word-wrap: break-word;
-      }
-      
-      /* Style pour la barre de défilement horizontale */
-      #metadata::-webkit-scrollbar {
-        height: 8px;
-      }
-      
-      #metadata::-webkit-scrollbar-track {
-        background: #f1f1f1;
-      }
-      
-      #metadata::-webkit-scrollbar-thumb {
-        background: #2980b9;
-        border-radius: 4px;
-      }
-      
-      #metadata::-webkit-scrollbar-thumb:hover {
-        background: #2171a6;
-      }
-      
-      #toggleContainer {
-        margin-top: 10px;
-        display: none;
-      }
-      
-      /* Style pour la modale */
-      #metadataModal {
-        background-color: rgba(0, 0, 0, 0.5);
-      }
-      
-      #metadataContent {
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-      }
-      
-      /* Boutons de la modale */
-      #closeModal,
-      #downloadPdf {
-        padding: 8px 16px;
-        border-radius: 4px;
-        border: none;
-        cursor: pointer;
-        font-weight: 600;
-        transition: background-color 0.2s;
-        margin: 5px;
-      }
-      
-      #closeModal {
-        background-color: #dc3545;
-        color: white;
-      }
-      
-      #downloadPdf {
-        background-color: #28a745;
-        color: white;
-      }
-      
-      #closeModal:hover {
-        background-color: #c82333;
-      }
-      
-      #downloadPdf:hover {
-        background-color: #218838;
-      }
-      
-      /* Responsive design */
-      @media screen and (max-width: 768px) {
-        #metadata table {
-          font-size: 12px;
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 98%;
+            margin: 0 auto;
         }
-      
-        #metadata table th,
-        #metadata table td {
-          padding: 6px;
+
+        .logo h1 {
+            font-style: italic;
+            font-size: 1.5rem;
         }
-      
-        #metadataContent {
-          width: 95%;
-          margin: 10% auto;
+
+        .logo span {
+            font-style: italic;
         }
-      }
-      
-      /* Ergonomie pour petits écrans */
-      @media (max-width: 768px) {
-        .header {
-          flex-direction: column;
-          gap: 1rem;
-        }
-      
-        #controls {
-          flex-direction: column;
-          align-items: center;
-        }
-      
+
         #map {
-          height: 60vh; /* Réduire la taille sur mobile pour s'adapter */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
         }
-      
-        #uploadForm {
-          width: 100%; /* Assurer que le formulaire s'étende sur toute la largeur */
+
+        .mapboxgl-ctrl-scale {
+            background-color: transparent;
+            display: flex;
+            position: absolute;
+            bottom: 450%;
+            left: 1270px;
+            justify-content: flex-end;
+            align-items: center;
+            height: 10px;
         }
-      }
+
+        .mapboxgl-ctrl a,
+        .mapboxgl-ctrl-attrib-inner {
+            display: none;
+        }
+
+        .mapboxgl-ctrl-top-right {
+            position: absolute;
+            top: 555px;
+            right: 85px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: transparent;
+        }
+
+        .mapboxgl-ctrl-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .elements-container {
+            position: absolute;
+            left: -350px;
+            top: 60px;
+            bottom: 50px;
+            width: 350px;
+            transition: left 0.5s ease-in-out;
+            z-index: 900;
+        }
+
+        .elements {
+            width: 100%;
+            height: 100%;
+            background-color: rgba(20, 20, 20, 1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: #00ffc8;
+            overflow-y: auto;
+        }
+
+        .btn {
+            background-color: transparent;
+            border: 1px solid #00ffc8;
+            color: #00ffc8;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .btn:hover {
+            background-color: #00ffc8;
+            color: rgba(20, 20, 20, 1);
+        }
+
+        .btn i {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        #toggle-actions {
+            position: absolute;
+            right: 0;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        #toggle-actions i {
+            font-size: 2em;
+            color: #00ffc8;
+        }
+
+        #showElement {
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 25px;
+            height: 55px;
+            background-color: rgba(20, 20, 20, 1);
+            border: none;
+            border-radius: 0 15px 15px 0;
+            cursor: pointer;
+            color: #00ffc8;
+            font-size: 20px;
+            transition: 0.3s ease-in-out;
+            z-index: 901;
+        }
+
+        #showAction {
+            position: absolute;
+            left: -25px;
+            top: 43%;
+            transform: translateY(50%);
+            width: 25px;
+            height: 55px;
+            background-color: rgba(20, 20, 20, 1);
+            border: none;
+            border-radius: 15px 0 0 15px;
+            cursor: pointer;
+            color: #00ffc8;
+            font-size: 20px;
+            transition: 0.3s ease-in-out;
+            z-index: 901;
+        }
+
+        #showElement:hover {
+            background-color: rgba(40, 40, 40, 1);
+        }
+
+        #showElement:focus {
+            outline: none;
+        }
+
+        #rasterCheckboxes {
+            height: 50%;
+            display: flex;
+            flex-direction: column;
+            border-bottom: solid 1px rgba(40, 40, 40, 0.9);
+        }
+
+        .actions-container {
+            position: fixed;
+            background-color: rgba(20, 20, 20, 0.9);
+            right: -350px;
+            top: 60px;
+            bottom: 85.5px;
+            width: 350px;
+            transition: right 0.5s ease-in-out;
+            z-index: 900;
+        }
+
+        .action {
+            width: 100%;
+            height: 100%;
+            background-color: rgba(20, 20, 20, 1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            color: #00ffc8;
+            overflow-y: auto;
+        }
+
+        .action>div {
+            flex: 1;
+        }
+
+        footer {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 1rem 0;
+            transition: 0.3s ease-in-out;
+            position: relative;
+            margin-top: auto;
+            z-index: 1000;
+        }
+
+        .foothead {
+            background-color: rgba(20, 20, 20, 1);
+        }
+
+        footer:hover {
+            background-color: rgba(20, 20, 20, 1);
+        }
+
+        select {
+            background-color: rgba(20, 20, 20, 1);
+            color: #00ffc8;
+            border: 1px solid #00ffc8;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .user-menu summary {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #00ffc8;
+            cursor: pointer;
+        }
+
+        .user-menu ul {
+            position: absolute;
+            right: 0;
+            bottom: -105px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(0, 255, 200, 0.3);
+            border-top: none !important;
+            border-radius: 0 0 0 8px;
+            padding: 0.5rem;
+            transition: 0.3s ease-in-out;
+            margin-top: 0.5rem;
+        }
+
+        .user-menu ul:hover {
+            background-color: rgba(20, 20, 20, 1);
+        }
+
+        .user-menu li {
+            padding: 0.5rem 1rem;
+            list-style: none;
+        }
+
+        .user-menu li:hover {
+            background-color: rgba(0, 255, 200, 0.2);
+        }
+
+        .user-menu a {
+            color: #00ffc8;
+            text-decoration: none;
+            display: block;
+            padding: 5px 0;
+            list-style: none;
+        }
+
+        #rasterCheckboxes {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            border-bottom: solid 1px rgba(40, 40, 40, 0.9);
+        }
+
+        #rasterCheckboxes div {
+            margin-bottom: 10px;
+        }
+
+        #rasterCheckboxes input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        #geojsonCheckboxes {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            border-bottom: solid 1px rgba(40, 40, 40, 0.9);
+        }
+
+        #geojsonCheckboxes div {
+            margin-bottom: 10px;
+        }
+
+        #geojsonCheckboxes input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        #divextract {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* Style général pour les inputs */
+        input[type="text"],
+        input[type="number"] {
+            background-color: rgba(20, 20, 20, 1);
+            color: #00ffc8;
+            border: 1px solid #00ffc8;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        /* Style au focus */
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 255, 200, 0.3);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .logo img {
+            width: 45px;
+            border-radius: 50%;
+        }
+
+        /* Style pour le placeholder */
+        input::placeholder {
+            color: rgba(0, 255, 200, 0.5);
+        }
+
+        /* Style pour les labels */
+        #divextract label {
+            color: #00ffc8;
+            margin-bottom: 5px;
+            gap: 10px;
+        }
+
+        .custom-marker {
+            background-color: rgba(0, 0, 0, 0.6);
+            color: #00ffc8;
+            padding: 5px;
+            border-radius: 3px;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            white-space: nowrap;
+            pointer-events: none;
+        }
     </style>
-  </head>
 
-  <body>
-    <div class="container-fluid">
-      <header class="header">
-        <h1><i class="bi bi-globe2"></i> IDoGek</h1>
+</head>
 
-        <div class="map-control">
-          <label for="style-selector">Style de carte:</label>
-          <select id="style-selector">
-            <option value="streets-v12">OpenStreetMap</option>
-            <option value="satellite-streets-v12">GoogleEarth</option>
-          </select>
+<body>
+
+    <header id="header">
+
+        <div class="container">
+
+            <div class="logo">
+
+                <img src="{% static 'authentification/LogoTest1.png' %}" alt="">
+                <h1>IDoGek</h1>
+
+            </div>
+
+            <div class="map-control">
+
+                <label for="style-selector"><i class="bi bi-layers"></i> Style de carte:</label>
+                <select id="style-selector">
+                    <option value="streets-v12">OpenStreetMap</option>
+                    <option value="satellite-streets-v12">GoogleEarth</option>
+                </select>
+
+            </div>
+
+            <div class="profil">
+
+                <nav class="user-menu">
+                    <details>
+                        <summary>
+                            <i class="bi bi-person-circle"></i>
+                            <span>Bob</span>
+                        </summary>
+                        <ul>
+                            <li>
+                                <a href="{% url 'authentification:profil' %}"><i class="bi bi-person"></i> Profil</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'authentification:logout' %}">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    Déconnexion
+                                </a>
+                            </li>
+                        </ul>
+                    </details>
+                </nav>
+
+            </div>
+
         </div>
 
-        <nav class="user-menu">
-          <details>
-            <summary>
-              <i class="bi bi-person-circle"></i>
-              <span>{{ user.username }}</span>
-            </summary>
-            <ul>
-              <li>
-                <a href="{% url 'authentification:profil' %}"><i class="bi bi-person"></i> Profil</a>
-              </li>
-              <li>
-                <a href="{% url 'authentification:logout' %}">
-                  <i class="bi bi-box-arrow-right"></i>
-                  Déconnexion
-                </a>
-              </li>
-            </ul>
-          </details>
-        </nav>
-      </header>
+    </header>
 
-      <div id="controls">
-        <button id="resetBtn" class="btn btn-danger"><i class="bi bi-trash"></i> Réinitialiser</button>
-        <button id="centerBtn" class="btn btn-primary"><i class="bi bi-geo"></i> Recentrer</button>
-        <button id="downloadBtn" class="btn btn-success"><i class="bi bi-download"></i> Exporter GeoJSON</button>
-        <button id="uploadBtn" class="btn btn-secondary"><i class="bi bi-upload"></i> Charger des fichiers</button>
-        <button id="extractBtn" class="btn btn-warning"><i class="bi bi-map"></i> Extraire carte</button>
-        <button id="importBtn" class="btn"><i class="bi bi-filetype-json"></i> Importer GeoJSON</button>
-      </div>
+    <main>
 
-      <div id="uploadForm" style="display: none; margin-bottom: 1rem;">
-        <form id="fileForm" enctype="multipart/form-data" method="POST" action="{% url 'authentification:index' %}">
-          {% csrf_token %}
-          <div class="mb-3">
-            <label for="rasterFile" class="form-label">Charger un raster :</label>
-            <input class="form-control" type="file" id="rasterFile" accept=".tiff,.tif" name="raster" />
-          </div>
-          <div id="toggleContainer">
-            <input type="checkbox" id="toggleImage" checked />
-            <label for="toggleImage">Show GeoTIFF</label>
-          </div>
-        </form>
-      </div>
+        <div id="map"></div>
 
-      <div class="mb-3" id="geojson">
-        <label for="rasterFile" class="form-label">Charger un fichier GeoJSON :</label>
-        <input class="form-control" type="file" id="geojsonFile" accept=".geojson,application/geo+json" />
-        <label for="toggleGeojson" style="gap: 5px;"><input type="checkbox" id="toggleGeojson" checked />   Afficher GeoJSON</label>
-        <button class="btn" id="showMetadataBtn">Afficher les métadonnées</button>
-      </div>
+        <div class="elements-container">
 
-      <div id="metadataModal">
-        <div id="metadataContent">
-          <div class="closedown">
-            <button class="btn" id="closeModal"><i class="bi bi-x-circle"></i> Fermer</button>
-            <button class="btn" id="downloadPdf"><i class="bi bi-filetype-pdf"></i> Télécharger PDF</button>
-          </div> <!-- Bouton pour télécharger le PDF -->
-          <div id="metadata"></div>
+            <div class="elements">
+
+                <button id="resetBtn" class="btn"><i class="bi bi-trash"></i> Réinitialiser</button>
+                <button id="centerBtn" class="btn"><i class="bi bi-geo"></i> Centrer sur Kribi</button>
+                <button id="downloadBtn" class="btn"><i class="bi bi-upload"></i> Exporter un GeoJSON</button>
+                <button id="uploadBtn" class="btn"><i class="bi bi-download"></i> Charger un Raster</button>
+                <button id="importBtn" class="btn"><i class="bi bi-filetype-json"></i> Importer un GeoJSON</button>
+
+            </div>
+            <button id="showElement" class="showElement"><i class="bi bi-caret-right"></i></button>
+
         </div>
-      </div>
 
-      <div class="controls" id="divextract">
-        <div class="map-control">
-          <label for="format">Format de sortie:</label>
-          <select id="format">
-            <option value="png">PNG</option>
-            <option value="jpg">JPG</option>
-          </select>
-        </div>
-        <div class="control-group">
-          <label for="width">Largeur (px):</label>
-          <input type="number" id="width" value="1280" min="1" max="3840" />
-        </div>
-        <div class="control-group">
-          <label for="height">Hauteur (px):</label>
-          <input type="number" id="height" value="1280" min="1" max="2160" />
-        </div>
-        <label for="filename">Nom du fichier:<input type="text" placeholder="Entrer le nom du fichier" value="mapbox-extract" id="filename" /></label>
-        <button id="actionextract" class="btn btn-primary">Extraire la zone sélectionnée</button>
-      </div>
+        <div class="actions-container">
 
-      <div id="map"></div>
-    </div>
+            <button id="toggle-actions"><i class="bi bi-x-circle"></i></button>
+            <h1>Elements importés</h1>
+
+            <div class="action" id="raster">
+
+                <div id="rasterCheckboxes">
+
+                    <h2>Rasters</h2>
+
+                </div>
+
+                <div id="geojsonCheckboxes">
+
+                    <h2>GeoJSON</h2>
+
+                </div>
+
+                <div id="divextract">
+                    <h2>Extraire carte</h2>
+                    <div class="map-control">
+                        <label for="format">Format de sortie:</label>
+                        <select id="format">
+                            <option value="png">PNG</option>
+                            <option value="jpg">JPG</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="width">Largeur (px):</label>
+                        <input type="number" id="width" value="1280" min="1" max="3840" />
+                    </div>
+                    <div class="control-group">
+                        <label for="height">Hauteur (px):</label>
+                        <input type="number" id="height" value="1280" min="1" max="2160" />
+                    </div>
+                    <label for="filename">Nom du fichier: <input type="text" placeholder="Entrer le nom du fichier"
+                            value="mapbox-extract" id="filename" /></label>
+                    <button id="actionextract" class="btn">Extraire la zone sélectionnée</button>
+                </div>
+
+            </div>
+            <button id="showAction" class="showAction"><i class="bi bi-plus"></i></button>
+
+        </div>
+
+    </main>
+
+    <footer id="footer">
+
+        <div class="container">
+            <div class="logo">
+                <span>IDoGeK</span>
+            </div>
+
+            <p>&copy; 2024 IDoGeK</p>
+        </div>
+
+    </footer>
 
     <script>
-      document.getElementById('uploadBtn').addEventListener('click', function () {
-        const form = document.getElementById('uploadForm')
-        form.style.display = form.style.display === 'none' ? 'block' : 'none'
-      })
-      
-      document.getElementById('extractBtn').addEventListener('click', function () {
-        const form = document.getElementById('divextract')
-        form.style.display = form.style.display === 'none' ? 'flex' : 'none'
-      })
-      
-      document.getElementById('importBtn').addEventListener('click', function () {
-        const form = document.getElementById('geojson')
-        form.style.display = form.style.display === 'none' ? 'flex' : 'none'
-      })
-      
-      mapboxgl.accessToken = 'pk.eyJ1IjoiY2VkcmljZXBhZGllIiwiYSI6ImNtMXE3aTRsNDBibTAycG9qajR5YjFjdm4ifQ.uMkRry3szVbv-cKeqJDBtg'
-      
-      const map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v12',
-        center: [9.9106, 2.9397],
-        zoom: 13
-      })
-      
-      async function convertGeoTIFFToPNG(file) {
-        try {
-          const arrayBuffer = await file.arrayBuffer()
-          const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer)
-          const image = await tiff.getImage()
-          const width = image.getWidth()
-          const height = image.getHeight()
-          const data = await image.readRasters()
-      
-          if (!data || !data[0] || !data[1] || !data[2]) {
-            throw new Error('Les données raster sont manquantes ou incomplètes.')
-          }
-      
-          const canvas = document.createElement('canvas')
-          canvas.width = width
-          canvas.height = height
-          const ctx = canvas.getContext('2d')
-      
-          const imageData = ctx.createImageData(width, height)
-          for (let i = 0; i < width * height; i++) {
-            imageData.data[i * 4] = data[0][i] || 0
-            imageData.data[i * 4 + 1] = data[1][i] || 0
-            imageData.data[i * 4 + 2] = data[2][i] || 0
-            imageData.data[i * 4 + 3] = 255
-          }
-          ctx.putImageData(imageData, 0, 0)
-      
-          return {
-            url: canvas.toDataURL('image/png'),
-            bbox: image.getBoundingBox()
-          }
-        } catch (error) {
-          console.error('Erreur lors de la conversion du GeoTIFF en PNG:', error)
-          throw error
-        }
-      }
-      
-      document.getElementById('rasterFile').addEventListener('change', async function (event) {
-        document.getElementById('uploadForm').style.display = 'none'
-        const file = event.target.files[0]
-        if (!file) return
-      
-        const arrayBuffer = await file.arrayBuffer()
-        const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer)
-        const image = await tiff.getImage()
-      
-        const { url: imageUrl, bbox } = await convertGeoTIFFToPNG(file)
-        const [minX, minY, maxX, maxY] = bbox
-      
-        // Supprimer la source et la couche existantes si elles existent
-        if (map.getLayer('geotiff')) {
-          map.removeLayer('geotiff')
-        }
-        if (map.getSource('geotiff')) {
-          map.removeSource('geotiff')
-        }
-      
-        map.addSource('geotiff', {
-          type: 'image',
-          url: imageUrl,
-          coordinates: [
-            [minX, maxY],
-            [maxX, maxY],
-            [maxX, minY],
-            [minX, minY]
-          ]
-        })
-      
-        map.addLayer({
-          id: 'geotiff',
-          source: 'geotiff',
-          type: 'raster',
-          paint: {
-            'raster-opacity': 1
-          }
-        })
-      
-        map.fitBounds([
-          [minX, minY],
-          [maxX, maxY]
-        ])
-      
-        // Afficher la checkbox une fois l'image chargée
-        document.getElementById('toggleContainer').style.display = 'block'
-      }) // Gérer le toggle de la visibilité de l'image
-      document.getElementById('toggleImage').addEventListener('change', function (e) {
-        if (map.getLayer('geotiff')) {
-          map.setLayoutProperty('geotiff', 'visibility', e.target.checked ? 'visible' : 'none')
-        }
-      })
-      
-      // Gérer le toggle de la visibilité de l'image
-      document.getElementById('toggleImage').addEventListener('change', function (e) {
-        if (map.getLayer('geotiff')) {
-          map.setLayoutProperty('geotiff', 'visibility', e.target.checked ? 'visible' : 'none')
-        }
-      })
-            
-      const nav = new mapboxgl.NavigationControl()
-      map.addControl(nav, 'top-left')
-      
-      const draw = new MapboxDraw({
-        displayControlsDefault: false,
-        controls: {
-          point: true,
-          line_string: true,
-          polygon: true,
-          trash: true
-        }
-      })
-      map.addControl(draw)
-      
-      // Stocker les informations pour mise à jour lors des déplacements de la carte
-      var figureInfoElements = []
-      
-      // Fonction pour afficher les informations des figures
-      function displayFigureInfo(coordinates, info) {
-        var infoDiv = document.createElement('div')
-        infoDiv.className = 'figure-info'
-        infoDiv.innerHTML = info
-        document.body.appendChild(infoDiv)
-      
-        // Ajouter l'élément à la liste pour une mise à jour automatique lors des déplacements
-        figureInfoElements.push({
-          element: infoDiv,
-          coordinates: coordinates
-        })
-      
-        // Mettre à jour la position initiale
-        updateFigureInfoPosition(infoDiv, coordinates)
-      }
-      
-      // Fonction pour mettre à jour la position des informations
-      function updateFigureInfoPosition(infoDiv, coordinates) {
-        var point = map.project(coordinates)
-        point.y += 190
-        point.x += 50
-        infoDiv.style.left = point.x + 'px'
-        infoDiv.style.top = point.y + 'px'
-      }
-      
-      // Fonction pour supprimer les anciennes informations
-      function clearInfo() {
-        figureInfoElements.forEach(function (info) {
-          if (info.element.parentNode) {
-            info.element.parentNode.removeChild(info.element)
-          }
-        })
-        figureInfoElements = []
-      }
-      
-      // Fonction pour afficher les métadonnées sous forme de tableau
-      function displayProperties(features) {
-        const propertiesDiv = document.getElementById('metadata')
-        propertiesDiv.innerHTML = '' // Effacer le contenu précédent
-      
-        if (features.length === 0) {
-          propertiesDiv.innerHTML = 'Aucune fonctionnalité à afficher.'
-          return
-        }
-      
-        let tableHTML = '<table border="1" cellpadding="10">'
-        tableHTML += '<thead><tr><th>Feature</th>'
-      
-        const firstFeature = features[0].properties
-        const keys = Object.keys(firstFeature)
-        keys.forEach((key) => {
-          tableHTML += `<th>${key}</th>`
-        })
-      
-        tableHTML += '</tr></thead><tbody>'
-        features.forEach((feature, index) => {
-          const props = feature.properties
-          let rowHTML = `<tr><td>Feature ${index + 1}</td>`
-          keys.forEach((key) => {
-            rowHTML += `<td>${props[key] !== undefined ? props[key] : ''}</td>`
-          })
-          rowHTML += '</tr>'
-          tableHTML += rowHTML
-        })
-      
-        tableHTML += '</tbody></table>'
-        propertiesDiv.innerHTML = tableHTML
-      }
 
-      document.getElementById('geojsonFile').addEventListener('change', function (event) {
-        const file = event.target.files[0];
-        if (file) {
-          var reader = new FileReader();
-          reader.onload = function (e) {
-            var geojsonData = JSON.parse(e.target.result);
-      
-            // Remove existing layers and source if they exist
-            if (map.getSource('geojson-data')) {
-              map.removeLayer('point-layer');
-              map.removeLayer('line-layer');
-              map.removeLayer('polygon-layer');
-              map.removeSource('geojson-data');
+        mapboxgl.accessToken = 'pk.eyJ1IjoiY2VkcmljZXBhZGllIiwiYSI6ImNtMXE3aTRsNDBibTAycG9qajR5YjFjdm4ifQ.uMkRry3szVbv-cKeqJDBtg'
+
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v12',
+            center: [9.9106, 2.9397],
+            zoom: 13
+        })
+
+        function addTouchEventListeners(map) {
+            const container = map.getContainer();
+
+            const preventDefault = (e) => {
+                if (e.touches.length > 1) {
+                    e.preventDefault();
+                }
+            };
+
+            const options = { passive: false };
+
+            container.addEventListener('touchstart', preventDefault, options);
+            container.addEventListener('touchmove', preventDefault, options);
+            container.addEventListener('touchend', preventDefault, options);
+        }
+
+        // Appelez cette fonction après avoir initialisé votre carte
+        addTouchEventListeners(map);
+
+        // Ajouter l'échelle
+        const scale = new mapboxgl.ScaleControl({
+            maxWidth: 80, // Largeur maximale de l'échelle (en pixels)
+            unit: 'metric' // 'metric' pour le système métrique, 'imperial' pour le système impérial
+        })
+
+        map.addControl(scale);
+
+        const nav = new mapboxgl.NavigationControl();
+        map.addControl(nav);
+
+        const draw = new MapboxDraw({
+            displayControlsDefault: false,
+            controls: {
+                point: true,
+                line_string: true,
+                polygon: true,
+                trash: true
             }
-      
-            // Add the GeoJSON data source
-            map.addSource('geojson-data', {
-              type: 'geojson',
-              data: geojsonData
-            });
-      
-            // Add point, line, and polygon layers for the GeoJSON data
-            map.addLayer({
-              id: 'point-layer',
-              type: 'circle',
-              source: 'geojson-data',
-              filter: ['==', '$type', 'Point']
-            });
-      
-            map.addLayer({
-              id: 'line-layer',
-              type: 'line',
-              source: 'geojson-data',
-              filter: ['==', '$type', 'LineString'],
-              paint: {
-                'line-width': 2
-              }
-            });
-      
-            map.addLayer({
-              id: 'polygon-layer',
-              type: 'fill',
-              source: 'geojson-data',
-              filter: ['==', '$type', 'Polygon'],
-              paint: {
-                'fill-opacity': 0.3
-              }
-            });
-      
-            // Fit the map to the bounds of the GeoJSON data
-            var bounds = new mapboxgl.LngLatBounds();
-            geojsonData.features.forEach(function (feature) {
-              feature.geometry.coordinates[0].forEach(function (coord) {
-                bounds.extend(coord);
-              });
-            });
-            map.fitBounds(bounds, { padding: 20 });
-      
-            displayProperties(geojsonData.features);
-      
-            // Handle the GeoJSON layer toggle based on the checkbox
-            const toggleGeojson = document.getElementById('toggleGeojson');
-            toggleGeojson.addEventListener('change', function () {
-              if (toggleGeojson.checked) {
-                // Add layers if checkbox is checked
-                map.setLayoutProperty('point-layer', 'visibility', 'visible');
-                map.setLayoutProperty('line-layer', 'visibility', 'visible');
-                map.setLayoutProperty('polygon-layer', 'visibility', 'visible');
-              } else {
-                // Hide layers if checkbox is unchecked
-                map.setLayoutProperty('point-layer', 'visibility', 'none');
-                map.setLayoutProperty('line-layer', 'visibility', 'none');
-                map.setLayoutProperty('polygon-layer', 'visibility', 'none');
-              }
-            });
-      
-            // Initially set the visibility based on the checkbox state
-            if (!toggleGeojson.checked) {
-              map.setLayoutProperty('point-layer', 'visibility', 'none');
-              map.setLayoutProperty('line-layer', 'visibility', 'none');
-              map.setLayoutProperty('polygon-layer', 'visibility', 'none');
+        });
+        map.addControl(draw);
+
+        // Mettre à jour l'échelle en fonction du zoom et du déplacement de la carte
+        map.on('load', () => {
+            scale.setUnit('metric'); // Vous pouvez choisir 'imperial' si vous voulez des miles
+        });
+
+        // Dictionnaire de toutes les couches chargées
+        let loadedLayers = {}
+
+        // Bouton de réinitialisation
+        document.getElementById('resetBtn').addEventListener('click', function () {
+            window.location.href = window.location.href;
+        })
+
+        // Bouton de recentrage
+        document.getElementById('centerBtn').addEventListener('click', function () {
+            map.flyTo({ center: [9.9106, 2.9397], zoom: 13 })
+        })
+
+        // Fonction pour télécharger le GeoJSON
+        function downloadGeoJSON() {
+            // Récupérer les features des couches déjà chargées en utilisant getGeoJsonForLayers
+            const loadedLayersGeoJSON = getGeoJsonForLayers(loadedLayers)
+            const loadedLayersFeatures = loadedLayersGeoJSON.features || []
+
+            // Récupérer les features dessinées
+            const drawnFeatures = draw.getAll().features
+
+            // Combiner toutes les features
+            const allFeatures = [...loadedLayersFeatures, ...drawnFeatures]
+
+            if (allFeatures.length === 0) {
+                alert('Impossible! Aucun élément à télécharger. Veuillez charger des couches ou dessiner des éléments.')
+                return
             }
-          };
-          reader.readAsText(file);
-        }
-      });
-      
-      // Affichage de la modal des métadonnées
-      document.getElementById('showMetadataBtn').addEventListener('click', function () {
-        document.getElementById('metadataModal').style.display = 'block'
-      })
-      
-      // Fermer la modal
-      document.getElementById('closeModal').addEventListener('click', function () {
-        document.getElementById('metadataModal').style.display = 'none'
-      })
-      
-      // Générer et télécharger un PDF du tableau
-      document.getElementById('downloadPdf').addEventListener('click', function () {
-        const { jsPDF } = window.jspdf
-        const doc = new jsPDF('l', 'mm', 'a4') // Format paysage
-      
-        const table = document.querySelector('#metadata table')
-        if (!table) return
-      
-        // Fonction pour mesurer précisément la largeur du texte
-        function measureTextWidth(text, fontSize) {
-          doc.setFontSize(fontSize)
-          return (doc.getStringUnitWidth(text) * fontSize) / doc.internal.scaleFactor
-        }
-      
-        // Fonction pour calculer la largeur optimale des colonnes
-        function calculateOptimalColumnWidths(header, body) {
-          const pageWidth = doc.internal.pageSize.width
-          const margins = 20 // Marges totales en mm
-          const availableWidth = pageWidth - margins
-          const minColWidth = 15 // Largeur minimum d'une colonne en mm
-      
-          // Calculer la largeur maximale nécessaire pour chaque colonne
-          const colWidths = header[0].map((_, colIndex) => {
-            // Mesurer l'en-tête
-            const headerWidth = measureTextWidth(header[0][colIndex], 10) + 6 // +6 pour le padding
-      
-            // Mesurer chaque cellule du corps
-            const cellWidths = body.map((row) => {
-              const cellText = row[colIndex]?.toString() || ''
-              return measureTextWidth(cellText, 9) + 6 // +6 pour le padding
-            })
-      
-            // Prendre le maximum entre l'en-tête et toutes les cellules
-            const maxWidth = Math.max(headerWidth, ...cellWidths)
-            return Math.max(minColWidth, maxWidth)
-          })
-      
-          // Calculer la largeur totale nécessaire
-          const totalWidth = colWidths.reduce((sum, width) => sum + width, 0)
-      
-          // Si la largeur totale dépasse l'espace disponible, ajuster proportionnellement
-          if (totalWidth > availableWidth) {
-            const ratio = availableWidth / totalWidth
-            return colWidths.map((width) => Math.max(minColWidth, width * ratio))
-          }
-      
-          return colWidths
-        }
-      
-        // Préparation des données
-        const header = []
-        const body = []
-      
-        // Extraction des en-têtes
-        const headerRow = table.querySelector('thead tr')
-        if (headerRow) {
-          const headerCells = headerRow.querySelectorAll('th')
-          header.push([...headerCells].map((cell) => cell.innerText.trim()))
-        }
-      
-        // Extraction du corps
-        const bodyRows = table.querySelectorAll('tbody tr')
-        bodyRows.forEach((row) => {
-          const cells = row.querySelectorAll('td')
-          body.push([...cells].map((cell) => cell.innerText.trim()))
-        })
-      
-        // Calcul des largeurs optimales
-        const columnWidths = calculateOptimalColumnWidths(header, body)
-      
-        // Configuration des styles du tableau
-        const tableConfig = {
-          head: header,
-          body: body,
-          startY: 30,
-          theme: 'grid',
-          styles: {
-            fontSize: 9,
-            cellPadding: 3,
-            overflow: 'linebreak',
-            valign: 'middle',
-            lineColor: [80, 80, 80],
-            lineWidth: 0.1
-          },
-          headStyles: {
-            fillColor: [41, 128, 185],
-            textColor: [255, 255, 255],
-            fontSize: 10,
-            fontStyle: 'bold',
-            halign: 'center',
-            valign: 'middle'
-          },
-          bodyStyles: {
-            textColor: [50, 50, 50],
-            halign: 'left'
-          },
-          alternateRowStyles: {
-            fillColor: [245, 245, 245]
-          },
-          columnStyles: {},
-          margin: { top: 30, right: 10, bottom: 20, left: 10 },
-          tableLineWidth: 0.1,
-          tableLineColor: [80, 80, 80],
-          didDrawPage: function (data) {
-            // En-tête de page
-            if (data.pageCount === 1) {
-              doc.setFontSize(18)
-              doc.text('Métadonnées GeoJSON', 14, 15)
-      
-              const today = new Date().toLocaleDateString('fr-FR')
-              doc.setFontSize(10)
-              doc.text(`Date de génération : ${today}`, 14, 22)
+
+            // Créer l'objet GeoJSON final
+            const geoJSON = {
+                type: 'FeatureCollection',
+                features: allFeatures
             }
-      
-            // Pied de page
-            const pageNumber = `Page ${data.pageNumber} / ${data.pageCount}`
-            const today = new Date().toLocaleDateString('fr-FR')
-            doc.setFontSize(8)
-            doc.text(pageNumber, data.settings.margin.left, doc.internal.pageSize.height - 10)
-            doc.text(`Document généré le ${today}`, 14, doc.internal.pageSize.height - 10)
-          },
-          willDrawCell: function (data) {
-            // Ajuster le style des cellules selon leur contenu
-            if (data.section === 'body') {
-              // Si le contenu est un nombre, l'aligner à droite
-              if (!isNaN(data.cell.raw) && data.cell.raw !== '') {
-                data.cell.styles.halign = 'right'
-              }
-              // Si le contenu est une date, l'aligner au centre
-              else if (!isNaN(Date.parse(data.cell.raw))) {
-                data.cell.styles.halign = 'center'
-              }
+
+            // Convertir en chaîne JSON
+            const geoJSONString = JSON.stringify(geoJSON, null, 2)
+
+            // Créer un Blob
+            const blob = new Blob([geoJSONString], { type: 'application/json' })
+
+            // Créer un lien de téléchargement
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = 'map_data.geojson'
+
+            // Déclencher le téléchargement
+            document.body.appendChild(a)
+            a.click()
+
+            // Nettoyer
+            document.body.removeChild(a)
+            URL.revokeObjectURL(url)
+        }
+
+        // Fonction pour recuperer les couches importé
+        function getGeoJsonForLayers(loadedLayers) {
+            let combinedFeatures = []
+
+            // Parcourir toutes les couches chargées
+            for (const layerId in loadedLayers) {
+                if (loadedLayers.hasOwnProperty(layerId)) {
+                    const source = map.getSource(layerId)
+
+                    if (source && source.type === 'geojson') {
+                        const data = source._data // Récupérer les données GeoJSON de la source
+                        if (data && data.features) {
+                            combinedFeatures = combinedFeatures.concat(data.features) // Combiner les features
+                        }
+                    }
+                }
             }
-          }
-        }
-      
-        // Application des largeurs calculées
-        columnWidths.forEach((width, index) => {
-          tableConfig.columnStyles[index] = {
-            cellWidth: width,
-            minCellWidth: 15
-          }
-        })
-      
-        // Génération du tableau
-        doc.autoTable(tableConfig)
-      
-        // Sauvegarde du PDF
-        doc.save('metadata-geojson.pdf')
-      })
-      
-      // Fonction pour mettre à jour les informations de surface ou de longueur
-      function updateInfo() {
-        var data = draw.getAll()
-        clearInfo() // Supprimer les anciennes infos
-      
-        data.features.forEach(function (feature) {
-          // Si c'est un polygone, on calcule la surface
-          if (feature.geometry.type === 'Polygon') {
-            var coordinates = feature.geometry.coordinates[0][0] // Premier point du polygone
-            var area = turf.area(feature)
-            var roundedArea = Math.round(area * 100) / 100
-            displayFigureInfo(coordinates, 'Surface: ' + roundedArea + ' m²')
-      
-            // Si c'est une ligne, on calcule la longueur
-          } else if (feature.geometry.type === 'LineString') {
-            var coordinates = feature.geometry.coordinates[Math.floor(feature.geometry.coordinates.length / 2)]
-            var length = turf.length(feature, { units: 'kilometers' })
-            var roundedLength = Math.round(length * 100) / 100
-            displayFigureInfo(coordinates, 'Longueur: ' + roundedLength + ' km')
-      
-            // Si c'est un point, on affiche simplement les coordonnées
-          } else if (feature.geometry.type === 'Point') {
-            var coordinates = feature.geometry.coordinates
-            displayFigureInfo(coordinates, 'Point: ' + coordinates.join(', '))
-          }
-        })
-      }
-      
-      // Activer les événements de dessin et mise à jour
-      map.on('draw.create', updateInfo)
-      map.on('draw.update', updateInfo)
-      map.on('draw.delete', clearInfo)
-      
-      // Mise à jour des positions lors des déplacements et zooms sur la carte
-      map.on('move', function () {
-        figureInfoElements.forEach(function (info) {
-          updateFigureInfoPosition(info.element, info.coordinates)
-        })
-      })
-      map.on('zoom', function () {
-        figureInfoElements.forEach(function (info) {
-          updateFigureInfoPosition(info.element, info.coordinates)
-        })
-      })
-      
-      let loadedLayers = {}
-      
-      function loadGeoJsonLayer(id, url) {
-        if (!map.isStyleLoaded()) {
-          map.once('style.load', () => loadGeoJsonLayer(id, url))
-          return
-        }
-      
-        if (map.getSource(id)) {
-          return // La source existe déjà
-        }
-      
-        fetch(url)
-          .then((response) => response.json())
-          .then((data) => {
-            // const simplifiedGeojson = turf.simplify(data, { tolerance: 0.01, highQuality: false });
-            map.addSource(id, {
-              // Utilisation de 'id' comme identifiant unique
-              type: 'geojson',
-              data: data
-            })
-      
-            map.addLayer({
-              id: `lines-${id}`, // ID unique pour chaque couche
-              type: 'line',
-              source: id, // Référence correcte à la source
-              paint: {
-                'line-color': '#FF0000',
-                'line-width': 2
-              },
-              filter: ['==', '$type', 'LineString']
-            })
-      
-            map.addLayer({
-              id: `points-${id}`,
-              type: 'circle',
-              source: id,
-              paint: {
-                'circle-radius': 3,
-                'circle-color': '#0000FF'
-              },
-              filter: ['==', '$type', 'Point']
-            })
-      
-            map.addLayer({
-              id: `polygons-${id}`,
-              type: 'fill',
-              source: id,
-              paint: {
-                'fill-color': '#00FF00',
-                'fill-opacity': 0.5
-              },
-              filter: ['==', '$type', 'Polygon']
-            })
-      
-            map.addLayer({
-              id: `polygon-borders-${id}`,
-              type: 'line',
-              source: id,
-              paint: {
-                'line-color': '#000000',
-                'line-width': 1
-              },
-              filter: ['==', '$type', 'Polygon']
-            })
-      
-            loadedLayers[id] = true // Enregistrer que la couche est chargée
-          })
-          .catch((error) => console.error('Erreur lors du chargement du GeoJSON:', error))
-      }
-      
-      function getGeoJsonForLayers(loadedLayers) {
-        let combinedFeatures = []
-      
-        // Parcourir toutes les couches chargées
-        for (const layerId in loadedLayers) {
-          if (loadedLayers.hasOwnProperty(layerId)) {
-            const source = map.getSource(layerId)
-      
-            if (source && source.type === 'geojson') {
-              const data = source._data // Récupérer les données GeoJSON de la source
-              if (data && data.features) {
-                combinedFeatures = combinedFeatures.concat(data.features) // Combiner les features
-              }
+
+            // Construire un objet GeoJSON combiné
+            return {
+                type: 'FeatureCollection',
+                features: combinedFeatures
             }
-          }
         }
-      
-        // Construire un objet GeoJSON combiné
-        return {
-          type: 'FeatureCollection',
-          features: combinedFeatures
-        }
-      }
-      
-      function removeGeoJsonLayer(id) {
-        const layerIds = [`lines-${id}`, `points-${id}`, `polygons-${id}`, `polygon-borders-${id}`]
-        layerIds.forEach((layerId) => {
-          if (map.getLayer(layerId)) {
-            map.removeLayer(layerId)
-          }
+
+        // Ajouter l'écouteur d'événements au bouton de téléchargement
+        document.getElementById('downloadBtn').addEventListener('click', downloadGeoJSON)
+
+        // Gestion de la div coulissante
+        const elementsContainer = document.querySelector('.elements-container');
+        const showElementBtn = document.getElementById('showElement');
+        const header = document.getElementById('header');
+        const footer = document.getElementById('footer');
+        const ScaleControl = document.querySelector('.mapboxgl-ctrl-scale');
+        const top_rigt = document.querySelector('.mapboxgl-ctrl-top-right');
+        let isOpen = false;
+
+        showElementBtn.addEventListener('click', () => {
+            if (isOpen) {
+                elementsContainer.style.left = '-350px';
+                showElementBtn.innerHTML = '<i class="bi bi-caret-right-fill"></i>';
+                header.classList.remove('foothead');
+                footer.classList.remove('foothead');
+            } else {
+                elementsContainer.style.left = '0';
+                showElementBtn.innerHTML = '<i class="bi bi-caret-left-fill"></i>';
+                header.classList.add('foothead');
+                footer.classList.add('foothead');
+            }
+            isOpen = !isOpen;
+        });
+
+        const actionsContainer = document.querySelector('.actions-container');
+        document.getElementById('uploadBtn').addEventListener('click', () => {
+            actionsContainer.style.right = '0';
         })
-        if (map.getSource(id)) {
-          map.removeSource(id)
-        }
-        delete loadedLayers[id]
-      }
-      
-      // Gestion des checkboxes
-      document.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
-        checkbox.addEventListener('change', function () {
-          const layerId = checkbox.value
-          if (checkbox.checked) {
-            loadGeoJsonLayer(layerId, geojsonLayers[layerId])
-          } else {
-            removeGeoJsonLayer(layerId)
-          }
+
+        document.getElementById('showAction').addEventListener('click', () => {
+            actionsContainer.style.right = '0';
+
         })
-      })
-      
-      /// Gestion du changement de style
-      const styleSelector = document.getElementById('style-selector')
-      styleSelector.addEventListener('change', function () {
-        const style = 'mapbox://styles/mapbox/' + this.value
-      
-        // Changer le style de la carte
-        map.setStyle(style)
-        document.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
-          checkbox.checked = false
+
+        document.getElementById('toggle-actions').addEventListener('click', () => {
+            actionsContainer.style.right = '-350px';
         })
-      })
-      
-      // Bouton de recentrage
-      document.getElementById('centerBtn').addEventListener('click', function () {
-        map.flyTo({ center: [9.9106, 2.9397], zoom: 13 })
-      })
-      
-      // Bouton de réinitialisation
-      document.getElementById('resetBtn').addEventListener('click', function () {
-        Object.keys(loadedLayers).forEach((id) => {
-          removeGeoJsonLayer(id)
+
+        let rasters = [];
+
+        document.getElementById('uploadBtn').addEventListener('click', function () {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.multiple = true;
+            input.accept = '.tif,.tiff';
+            input.onchange = handleFileSelectRaster;
+            input.click();
+        });
+
+        function handleFileSelectRaster(event) {
+            const files = event.target.files;
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const arrayBuffer = e.target.result;
+                    parseGeoTIFF(arrayBuffer, file.name);
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
+        function addLayerForGeometryType(sourceId, type, geometryType, color) {
+            const layerId = `${sourceId}-${type}`;
+            const layerConfig = {
+                id: layerId,
+                type: type,
+                source: sourceId,
+                paint: {},
+                filter: ['==', '$type', geometryType]
+            };
+
+            switch (type) {
+                case 'fill':
+                    layerConfig.paint['fill-color'] = color;
+                    layerConfig.paint['fill-opacity'] = 0.8;
+                    break;
+                case 'line':
+                    layerConfig.paint['line-color'] = color;
+                    layerConfig.paint['line-width'] = 2;
+                    break;
+                case 'circle':
+                    layerConfig.paint['circle-color'] = color;
+                    layerConfig.paint['circle-radius'] = 5;
+                    break;
+            }
+
+            map.addLayer(layerConfig);
+        }
+
+        function getBounds(geojson) {
+            const bounds = new mapboxgl.LngLatBounds();
+            let hasValidCoordinates = false;
+
+            function isValidCoordinate(coord) {
+                return Array.isArray(coord) &&
+                    coord.length >= 2 &&
+                    typeof coord[0] === 'number' &&
+                    typeof coord[1] === 'number' &&
+                    coord[0] >= -180 && coord[0] <= 180 &&
+                    coord[1] >= -90 && coord[1] <= 90;
+            }
+
+            function extendBounds(coords) {
+                if (Array.isArray(coords[0])) {
+                    coords.forEach(extendBounds);
+                } else if (isValidCoordinate(coords)) {
+                    bounds.extend(coords);
+                    hasValidCoordinates = true;
+                } else {
+                    hasValidCoordinates = false;
+                }
+            }
+
+            if (geojson.type === 'FeatureCollection') {
+                geojson.features.forEach(feature => {
+                    if (feature.geometry && feature.geometry.coordinates) {
+                        extendBounds(feature.geometry.coordinates);
+                    }
+                });
+            } else if (geojson.type === 'Feature' && geojson.geometry && geojson.geometry.coordinates) {
+                extendBounds(geojson.geometry.coordinates);
+            }
+
+            return hasValidCoordinates ? bounds : null;
+        }
+
+        // Fonction pour générer une couleur aléatoire
+        function getRandomColor() {
+            const r = Math.floor(Math.random() * 256);
+            const g = Math.floor(Math.random() * 256);
+            const b = Math.floor(Math.random() * 256);
+            return `rgb(${r},${g},${b})`;
+        }
+
+        async function parseGeoTIFF(arrayBuffer, fileName) {
+            const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer);
+            const image = await tiff.getImage();
+            const bbox = image.getBoundingBox();
+            const rasterData = await image.readRasters();
+
+            const raster = {
+                id: 'raster-' + Date.now(),
+                name: fileName,
+                bounds: bbox,
+                data: rasterData[0],
+                width: image.getWidth(),
+                height: image.getHeight()
+            };
+
+            const pngDataUrl = await convertToPNG(raster);
+            raster.pngDataUrl = pngDataUrl;
+
+            rasters.push(raster);
+            addRasterToMap(raster);
+            createCheckboxRaster(raster);
+        }
+
+        // Fonction pour convertir un tif en png
+        async function convertToPNG(raster) {
+            const canvas = document.createElement('canvas');
+            canvas.width = raster.width;
+            canvas.height = raster.height;
+            const ctx = canvas.getContext('2d');
+
+            // Créer une ImageData à partir des données raster
+            const imageData = ctx.createImageData(raster.width, raster.height);
+
+            // Convertir les données en niveaux de gris en RVBA
+            for (let i = 0; i < raster.data.length; i++) {
+                const val = raster.data[i];
+                imageData.data[i * 4] = val;     // R
+                imageData.data[i * 4 + 1] = val; // V
+                imageData.data[i * 4 + 2] = val; // B
+                imageData.data[i * 4 + 3] = 255; // A (opaque)
+            }
+
+            // Dessiner l'ImageData sur le canvas
+            ctx.putImageData(imageData, 0, 0);
+
+            // Convertir le canvas en PNG (Data URL)
+            return canvas.toDataURL('image/png');
+        }
+
+        function addRasterToMap(raster) {
+            map.addSource(raster.id, {
+                type: 'image',
+                url: raster.pngDataUrl,
+                coordinates: [
+                    [raster.bounds[0], raster.bounds[3]],
+                    [raster.bounds[2], raster.bounds[3]],
+                    [raster.bounds[2], raster.bounds[1]],
+                    [raster.bounds[0], raster.bounds[1]]
+                ]
+            });
+
+            map.addLayer({
+                id: raster.id,
+                type: 'raster',
+                source: raster.id,
+                paint: {
+                    'raster-opacity': 0.7
+                }
+            });
+            map.fitBounds(raster.bounds, { padding: 20 })
+        }
+
+        // Fonction pour créer les checkbox pour activer et désactiver les raster
+        function createCheckboxRaster(raster) {
+            const container = document.getElementById('rasterCheckboxes');
+            const div = document.createElement('div');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = raster.id + '-checkbox';
+            checkbox.checked = true;
+
+            const label = document.createElement('label');
+            label.htmlFor = checkbox.id;
+            label.textContent = raster.name;
+
+            checkbox.addEventListener('change', function () {
+                const visibility = this.checked ? 'visible' : 'none';
+                map.setLayoutProperty(raster.id, 'visibility', visibility);
+            });
+
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            container.appendChild(div);
+        }
+
+        function createCheckboxGeojson(layer) {
+            const container = document.getElementById('geojsonCheckboxes');
+            const div = document.createElement('div');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = layer.id + '-checkbox';
+            checkbox.checked = true;
+
+            const label = document.createElement('label');
+            label.htmlFor = checkbox.id;
+            label.textContent = layer.name;
+
+            checkbox.addEventListener('change', function () {
+                const visibility = this.checked ? 'visible' : 'none';
+                ['fill', 'line', 'circle'].forEach(type => {
+                    const layerId = `${layer.id}-${type}`;
+                    if (map.getLayer(layerId)) {
+                        map.setLayoutProperty(layerId, 'visibility', visibility);
+                    }
+                });
+            });
+
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            container.appendChild(div);
+        }
+
+        document.getElementById('actionextract').addEventListener('click', async function () {
+            const features = draw.getAll()
+            if (features.features.length === 0) {
+                alert("Veuillez d'abord dessiner une zone sur la carte.")
+                return
+            }
+
+            const bbox = turf.bbox(features.features[0])
+            const format = document.getElementById('format').value
+            const width = document.getElementById('width').value
+            const height = document.getElementById('height').value
+            const name = document.getElementById('filename').value
+
+            const lngLatCenter = [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2]
+
+            const zoom = map.getZoom()
+            // Construire l'URL d'API statique
+            const combinedGeoJson = getGeoJsonForLayers(loadedLayers)
+            features.features.shift()
+            combinedGeoJson.features.forEach((feature) => {
+                feature.properties = feature.properties || {}
+                feature.properties['stroke'] = '#FF0000' // Couleur rouge pour les lignes
+                feature.properties['stroke-width'] = 2 // Épaisseur des lignes
+                feature.properties['fill'] = '#FF0000' // Couleur rouge pour le remplissage
+                feature.properties['fill-opacity'] = 0.5 // Transparence du remplissage
+            })
+            const geojsonFeatures = encodeURIComponent(JSON.stringify(combinedGeoJson))
+            const url = `https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/static/geojson(${geojsonFeatures})/${lngLatCenter[0]},${lngLatCenter[1]},${zoom}/${width}x${height}@2x?access_token=${mapboxgl.accessToken}`
+
+            try {
+                const response = await fetch(url)
+                const blob = await response.blob()
+                const link = document.createElement('a')
+                link.href = URL.createObjectURL(blob)
+                link.download = `${name}.${format}`
+                document.body.appendChild(link)
+                link.click()
+                document.body.removeChild(link)
+            } catch (error) {
+                console.error("Erreur lors du téléchargement de l'image:", error)
+                alert("Une erreur est survenue lors de l'extraction de l'image.")
+            }
         })
-        document.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
-          checkbox.checked = false
+
+        // Ajout des styles CSS
+        const style = document.createElement('style');
+        style.textContent = `
+.metadata-button, .download-button {
+    background-color: #00ffc8;
+    color: rgba(20, 20, 20, 1);
+    border: none;
+    padding: 5px 10px;
+    margin: 5px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: rgba(20, 20, 20, 1);
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #00ffc8;
+    width: 80%;
+    color: #00ffc8;
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+.close {
+    color: #00ffc8;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid #00ffc8;
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background-color: rgba(0, 255, 200, 0.2);
+}
+`;
+        document.head.appendChild(style);
+
+        let geojsonLayers = [];
+
+        document.getElementById('importBtn').addEventListener('click', function () {
+            actionsContainer.style.right = '0';
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.multiple = true;
+            input.accept = '.geojson,.json';
+            input.onchange = handleFileSelect;
+            input.click();
+        });
+
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    try {
+                        const geojson = JSON.parse(e.target.result);
+                        addGeoJSONToMap(geojson, file.name);
+                    } catch (error) {
+                        console.error("Erreur lors du chargement du fichier:", file.name, error);
+                        alert(`Erreur lors du chargement du fichier ${file.name}: ${error.message}`);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function addGeoJSONToMap(geojson, fileName) {
+            const layerId = 'geojson-' + Date.now();
+
+            map.addSource(layerId, {
+                type: 'geojson',
+                data: geojson
+            });
+
+            addLayerForGeometryType(layerId, 'fill', 'Polygon', getRandomColor());
+            addLayerForGeometryType(layerId, 'line', 'LineString', getRandomColor());
+            addLayerForGeometryType(layerId, 'circle', 'Point', getRandomColor());
+
+            const bounds = getBounds(geojson);
+            if (bounds) {
+                map.fitBounds(bounds, { padding: 50 });
+            } else {
+                alert("Impossible de déterminer les limites du GeoJSON");
+            }
+
+            geojsonLayers.push({ id: layerId, name: fileName, geojson: geojson }); // Sauvegarde le GeoJSON
+
+            createCheckbox({ id: layerId, name: fileName });
+        }
+
+        function addLayerForGeometryType(sourceId, type, geometryType, color) {
+            const layerId = `${sourceId}-${type}`;
+            map.addLayer({
+                id: layerId,
+                type: type,
+                source: sourceId,
+                paint: type === 'fill' ? {
+                    'fill-color': color,
+                    'fill-opacity': 0.8
+                } : type === 'line' ? {
+                    'line-color': color,
+                    'line-width': 2
+                } : {
+                    'circle-color': color,
+                    'circle-radius': 5
+                },
+                filter: ['==', '$type', geometryType]
+            });
+        }
+
+        function getBounds(geojson) {
+            const bounds = new mapboxgl.LngLatBounds();
+            let hasValidCoordinates = false;
+
+            function isValidCoordinate(coord) {
+                return Array.isArray(coord) &&
+                    coord.length >= 2 &&
+                    typeof coord[0] === 'number' &&
+                    typeof coord[1] === 'number' &&
+                    coord[0] >= -180 && coord[0] <= 180 &&
+                    coord[1] >= -90 && coord[1] <= 90;
+            }
+
+            function extendBounds(coords) {
+                if (Array.isArray(coords[0])) {
+                    coords.forEach(extendBounds);
+                } else if (isValidCoordinate(coords)) {
+                    bounds.extend(coords);
+                    hasValidCoordinates = true;
+                }
+            }
+
+            if (geojson.type === 'FeatureCollection') {
+                geojson.features.forEach(feature => {
+                    if (feature.geometry && feature.geometry.coordinates) {
+                        extendBounds(feature.geometry.coordinates);
+                    }
+                });
+            } else if (geojson.type === 'Feature' && geojson.geometry && geojson.geometry.coordinates) {
+                extendBounds(geojson.geometry.coordinates);
+            }
+
+            return hasValidCoordinates ? bounds : null;
+        }
+
+        function createCheckbox(layer) {
+            const container = document.getElementById('geojsonCheckboxes');
+            const div = document.createElement('div');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = layer.id + '-checkbox';
+            checkbox.checked = true;
+
+            const label = document.createElement('label');
+            label.htmlFor = checkbox.id;
+            label.textContent = layer.name;
+
+            const metadataButton = document.createElement('button');
+            metadataButton.textContent = 'Métadonnées';
+            metadataButton.className = 'metadata-button';
+            metadataButton.onclick = function () {
+                displayMetadata(layer.id);
+            };
+
+            checkbox.addEventListener('change', function () {
+                const visibility = this.checked ? 'visible' : 'none';
+                ['fill', 'line', 'circle'].forEach(type => {
+                    const layerId = `${layer.id}-${type}`;
+                    if (map.getLayer(layerId)) {
+                        map.setLayoutProperty(layerId, 'visibility', visibility);
+                    }
+                });
+            });
+
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            div.appendChild(metadataButton);
+            container.appendChild(div);
+        }
+
+        // Ajoutez cet écouteur pour recharger les couches GeoJSON après un changement de style
+        map.on('style.load', function () {
+            geojsonLayers.forEach(layer => {
+                // Réappliquez la source et les couches après un changement de style
+                map.addSource(layer.id, {
+                    type: 'geojson',
+                    data: layer.geojson
+                });
+
+                addLayerForGeometryType(layer.id, 'fill', 'Polygon', getRandomColor());
+                addLayerForGeometryType(layer.id, 'line', 'LineString', getRandomColor());
+                addLayerForGeometryType(layer.id, 'circle', 'Point', getRandomColor());
+            });
+            map.flyTo({ center: [9.9106, 2.9397], zoom: 13 })
+        });
+
+
+        function createModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="metadata-content"></div>
+            <button id="downloadBtn" class="download-button">Télécharger le tableau</button>
+        </div>
+    `;
+            document.body.appendChild(modal);
+
+            const closeBtn = modal.querySelector('.close');
+            closeBtn.onclick = function () {
+                modal.style.display = "none";
+            }
+
+            window.onclick = function (event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            const downloadBtn = modal.querySelector('#downloadBtn');
+            downloadBtn.onclick = function () {
+                downloadTableAsCSV();
+            }
+
+            return modal;
+        }
+
+        const modal = createModal();
+
+        function displayMetadata(layerId) {
+            const source = map.getSource(layerId);
+            if (source && source._data) {
+                let features = [];
+                if (source._data.type === 'FeatureCollection') {
+                    features = source._data.features;
+                } else if (source._data.type === 'Feature') {
+                    features = [source._data];
+                }
+
+                const metadataContent = document.getElementById('metadata-content');
+                metadataContent.innerHTML = ''; // Effacer le contenu précédent
+
+                if (features.length === 0) {
+                    metadataContent.innerHTML = 'Aucune fonctionnalité à afficher.';
+                    modal.style.display = "block";
+                    return;
+                }
+
+                let tableHTML = '<table id="metadataTable">';
+                tableHTML += '<thead><tr><th>Feature</th>';
+
+                const firstFeature = features[0].properties;
+                const keys = Object.keys(firstFeature);
+                keys.forEach((key) => {
+                    tableHTML += `<th>${key}</th>`;
+                });
+
+                tableHTML += '</tr></thead><tbody>';
+                features.forEach((feature, index) => {
+                    const props = feature.properties;
+                    let rowHTML = `<tr><td>Feature ${index + 1}</td>`;
+                    keys.forEach((key) => {
+                        rowHTML += `<td>${props[key] !== undefined ? props[key] : ''}</td>`;
+                    });
+                    rowHTML += '</tr>';
+                    tableHTML += rowHTML;
+                });
+
+                tableHTML += '</tbody></table>';
+                metadataContent.innerHTML = tableHTML;
+                modal.style.display = "block";
+            }
+        }
+
+        function downloadTableAsCSV() {
+            const table = document.getElementById('metadataTable');
+            let csv = [];
+            for (let i = 0; i < table.rows.length; i++) {
+                let row = [], cols = table.rows[i].cells;
+                for (let j = 0; j < cols.length; j++) {
+                    row.push(cols[j].innerText);
+                }
+                csv.push(row.join(','));
+            }
+            const csvString = csv.join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", "metadata.csv");
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        const markers = new Map();
+
+        function updateMarker(id, coordinates, content) {
+            let marker = markers.get(id);
+            if (marker) {
+                marker.setLngLat(coordinates);
+                marker.getElement().innerHTML = content;
+            } else {
+                const el = document.createElement('div');
+                el.className = 'custom-marker';
+                el.innerHTML = content;
+                marker = new mapboxgl.Marker(el)
+                    .setLngLat(coordinates)
+                    .addTo(map);
+                markers.set(id, marker);
+            }
+        }
+
+        function calculateLineLength(coordinates) {
+            return turf.length(turf.lineString(coordinates)).toFixed(2);
+        }
+
+        function calculatePolygonMetrics(coordinates) {
+            const polygon = turf.polygon([coordinates]);
+            const area = turf.area(polygon);
+            const perimeter = turf.length(turf.lineString(coordinates));
+            return {
+                area: (area / 1000000).toFixed(2),  // Conversion en km²
+                perimeter: (perimeter)  // Conversion en km
+            };
+        }
+
+        function handleFeature(feature) {
+            let content, coordinates;
+
+            switch (feature.geometry.type) {
+                case 'Point':
+                    coordinates = feature.geometry.coordinates;
+                    content = `Coordonnées : ${coordinates[0].toFixed(4)}, ${coordinates[1].toFixed(4)}`;
+                    updateMarker(feature.id, coordinates, content);
+                    break;
+                case 'LineString':
+                    coordinates = feature.geometry.coordinates;
+                    const length = calculateLineLength(coordinates);
+                    content = `Longueur : ${length} km`;
+                    updateMarker(feature.id, turf.center(feature).geometry.coordinates, content);
+                    break;
+                case 'Polygon':
+                    coordinates = feature.geometry.coordinates[0];
+                    const metrics = calculatePolygonMetrics(coordinates);
+                    content = `Périmètre : ${metrics.perimeter} m<br>Surface : ${metrics.area} km²`;
+                    updateMarker(feature.id, turf.center(feature).geometry.coordinates, content);
+                    break;
+            }
+        }
+
+        map.on('style.load', () => {
+            rasters.forEach(raster => {
+                addRasterToMap(raster)
+            });
+            map.flyTo({ center: [9.9106, 2.9397], zoom: 13 })
         })
-        draw.deleteAll()
-        clearInfo()
-      })
-      
-      // Fonction pour télécharger le GeoJSON
-      function downloadGeoJSON() {
-        // Récupérer les features des couches déjà chargées en utilisant getGeoJsonForLayers
-        const loadedLayersGeoJSON = getGeoJsonForLayers(loadedLayers)
-        const loadedLayersFeatures = loadedLayersGeoJSON.features || []
-      
-        // Récupérer les features dessinées
-        const drawnFeatures = draw.getAll().features
-      
-        // Combiner toutes les features
-        const allFeatures = [...loadedLayersFeatures, ...drawnFeatures]
-      
-        if (allFeatures.length === 0) {
-          alert('Impossible! Aucun élément à télécharger. Veuillez charger des couches ou dessiner des éléments.')
-          return
+
+        // Modifiez la fonction de changement de style
+        function changeMapStyle(style) {
+            map.setStyle(`mapbox://styles/mapbox/${style}`)
         }
-      
-        // Créer l'objet GeoJSON final
-        const geoJSON = {
-          type: 'FeatureCollection',
-          features: allFeatures
-        }
-      
-        // Convertir en chaîne JSON
-        const geoJSONString = JSON.stringify(geoJSON, null, 2)
-      
-        // Créer un Blob
-        const blob = new Blob([geoJSONString], { type: 'application/json' })
-      
-        // Créer un lien de téléchargement
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = 'map_data.geojson'
-      
-        // Déclencher le téléchargement
-        document.body.appendChild(a)
-        a.click()
-      
-        // Nettoyer
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-      }
-      
-      // Ajouter l'écouteur d'événements au bouton de téléchargement
-      document.getElementById('downloadBtn').addEventListener('click', downloadGeoJSON)
-      
-      document.getElementById('actionextract').addEventListener('click', async function () {
-        document.getElementById('divextract').style.display = 'none'
-        const features = draw.getAll()
-        if (features.features.length === 0) {
-          alert("Veuillez d'abord dessiner une zone sur la carte.")
-          return
-        }
-      
-        const bbox = turf.bbox(features.features[0])
-        const format = document.getElementById('format').value
-        const width = document.getElementById('width').value
-        const height = document.getElementById('height').value
-        const name = document.getElementById('filename').value
-      
-        const lngLatCenter = [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2]
-      
-        const zoom = map.getZoom()
-        // Construire l'URL d'API statique
-        const combinedGeoJson = getGeoJsonForLayers(loadedLayers)
-        features.features.shift()
-        combinedGeoJson.features.forEach((feature) => {
-          feature.properties = feature.properties || {}
-          feature.properties['stroke'] = '#FF0000' // Couleur rouge pour les lignes
-          feature.properties['stroke-width'] = 2 // Épaisseur des lignes
-          feature.properties['fill'] = '#FF0000' // Couleur rouge pour le remplissage
-          feature.properties['fill-opacity'] = 0.5 // Transparence du remplissage
-        })
-        const geojsonFeatures = encodeURIComponent(JSON.stringify(combinedGeoJson))
-        const url = `https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/static/geojson(${geojsonFeatures})/${lngLatCenter[0]},${lngLatCenter[1]},${zoom}/${width}x${height}@2x?access_token=${mapboxgl.accessToken}`
-      
-        try {
-          const response = await fetch(url)
-          const blob = await response.blob()
-          const link = document.createElement('a')
-          link.href = URL.createObjectURL(blob)
-          link.download = `${name}.${format}`
-          document.body.appendChild(link)
-          link.click()
-          document.body.removeChild(link)
-        } catch (error) {
-          console.error("Erreur lors du téléchargement de l'image:", error)
-          alert("Une erreur est survenue lors de l'extraction de l'image.")
-        }
-      })
+
+        // Assurez-vous que cette fonction est appelée lorsque l'utilisateur change le style de la carte
+        document.getElementById('style-selector').addEventListener('change', function (e) {
+            const newStyle = e.target.value;
+            changeMapStyle(newStyle);
+        });
+
+        map.on('draw.create', function (e) {
+            e.features.forEach(handleFeature);
+        });
+
+        map.on('draw.update', function (e) {
+            e.features.forEach(handleFeature);
+        });
+
+        map.on('draw.delete', function (e) {
+            e.features.forEach(feature => {
+                const marker = markers.get(feature.id);
+                if (marker) {
+                    marker.remove();
+                    markers.delete(feature.id);
+                }
+            });
+        });
     </script>
-  </body>
+</body>
+
 </html>

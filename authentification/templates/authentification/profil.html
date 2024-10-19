@@ -1,207 +1,235 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Profil</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <!-- Ajout d'icônes Bootstrap -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+    <link rel="shortcut icon" href="{% static 'authentification/LogoTest1.png' %}" type="image/x-icon">
+
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+      body {
+        background: radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(36, 36, 36, 1) 100%);
+        font-family: Georgia, 'Times New Roman', Times, serif;
+        color: #e0e0e0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      
+      .logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+      
+      .logo img {
+        width: 45px;
+        border-radius: 50%;
+      }
 
-        body {
-            background: radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(36, 36, 36, 1) 100%);
-            font-family: 'Orbitron', sans-serif;
-            color: #e0e0e0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+      .logo h1 {
+        font-style: italic;
+      }
+      
+      h1,
+      h3,
+      h2 {
+        color: #00ffc8;
+      }
+      
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, #00ffc8, #0d7377, #212121);
+        filter: blur(150px);
+        z-index: -1;
+        animation: rotate 10s infinite linear;
+      }
+      
+      @keyframes rotate {
+        0% {
+          transform: rotate(0deg);
         }
-
-        h1,
-        h3,
-        h2 {
-            color: #00ffc8;
+      
+        100% {
+          transform: rotate(360deg);
         }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, #00ffc8, #0d7377, #212121);
-            filter: blur(150px);
-            z-index: -1;
-            animation: rotate 10s infinite linear;
-        }
-
-        @keyframes rotate {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .container-fluid {
-            max-width: 1200px;
-            margin: auto;
-            padding: 20px;
-        }
-
+      }
+      
+      .container-fluid {
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+      }
+      
+      #info {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        padding: 15px;
+        background-color: transparent;
+        box-shadow: 0px 0px 10px #00ffc8;
+        border: 1px solid #444;
+        border-radius: 8px;
+        color: #fff;
+        min-height: 300px;
+      }
+      
+      .header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 100px;
+      }
+      
+      .header a {
+        list-style: none;
+        text-decoration: none;
+      }
+      
+      .header details {
+        position: relative;
+      }
+      
+      .header details ul {
+        position: absolute;
+        right: 100%;
+        top: 0%;
+        transform: translateX(0%);
+        list-style: none;
+        width: 150px;
+        background-color: #2a2a2c;
+        border-radius: 5px;
+        padding: 0;
+        margin: 0;
+        margin-right: 5px;
+      }
+      
+      .header details ul li {
+        padding: 10px 0;
+        cursor: pointer;
+        text-align: center;
+        width: 100%;
+        display: block;
+        color: #fff;
+      }
+      
+      .header details ul a {
+        color: #fff;
+        text-decoration: none;
+        list-style: none;
+      }
+      
+      .header details ul li:hover {
+        box-shadow: 0px 0px 10px #00ffc8;
+      }
+      
+      .header details summary {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        list-style: none;
+      }
+      
+      .header details summary span {
+        color: #00ffc8;
+      }
+      
+      .header details summary i {
+        font-size: 30px;
+        color: #00ffc8;
+      }
+      
+      .rounder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background-color: transparent;
+        box-shadow: 0px 0px 10px #00ffc8;
+        margin: 10px;
+      }
+      
+      .rounder i {
+        color: #00ffc8;
+        font-size: 100px;
+      }
+      
+      @media (max-width: 768px) {
         #info {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            padding: 15px;
-            background-color: transparent;
-            box-shadow: 0px 0px 10px #00ffc8;
-            border: 1px solid #444;
-            border-radius: 8px;
-            color: #fff;
-            min-height: 300px;
+          min-height: 200px;
+          margin-top: 20px;
         }
-
-        .header {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 100px;
-        }
-
-        .header a {
-            list-style: none;
-            text-decoration: none;
-        }
-
-        .header details {
-            position: relative;
-        }
-
-        .header details ul {
-            position: absolute;
-            right: 100%;
-            top: 0%;
-            transform: translateX(0%);
-            list-style: none;
-            width: 150px;
-            background-color: #2a2a2c;
-            border-radius: 5px;
-            padding: 0;
-            margin: 0;
-            margin-right: 5px;
-        }
-
-        .header details ul li {
-            padding: 10px 0;
-            cursor: pointer;
-            text-align: center;
-            width: 100%;
-            display: block;
-            color: #fff;
-        }
-
-        .header details ul a {
-            color: #fff;
-            text-decoration: none;
-            list-style: none;
-        }
-
-        .header details ul li:hover {
-            box-shadow: 0px 0px 10px #00ffc8;
-        }
-
-        .header details summary {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            list-style: none;
-        }
-
-        .header details summary span {
-            color: #00ffc8;
-        }
-
-        .header details summary i {
-            font-size: 30px;
-            color: #00ffc8;
-        }
-
-        .rounder {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background-color: transparent;
-            box-shadow: 0px 0px 10px #00ffc8;
-            margin: 10px;
-        }
-
-        .rounder i {
-            color: #00ffc8;
-            font-size: 100px;
-        }
-
-        @media (max-width: 768px) {
-            #info {
-                min-height: 200px;
-                margin-top: 20px;
-            }
-        }
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="container-fluid">
-        <div class="header">
-            <a href="{% url 'authentification:index' %}">
-                <h1 class="text-center mb-4">GeoApp</h1>
-            </a>
-    
-            <nav>
-                <details>
-                    <summary>
-                        <i class="bi bi-person"></i><span> {{ user.username }} </span>
-                    </summary>
-                    <ul>
-                        <a href="{% url 'authentification:edit' %}"><li>Edit Profil</li></a>
-                        <a href="{% url 'authentification:logout' %}"><li>Sign Out</li></a>
-                    </ul>
-    
-                </details>
-            </nav>
+      <div class="header">
+        <a href="{% url 'authentification:index' %}">
+          <div class="logo">
+            <img src="{% static 'authentification/LogoTest1.png' %}" alt="" />
+            <h1>IDoGeK</h1>
+          </div>
+        </a>
+
+        <div class="profil">
+          <nav class="user-menu">
+            <details>
+              <summary>
+                <i class="bi bi-person-circle"></i>
+                <span>{{ user.username }}</span>
+              </summary>
+              <ul>
+                <a href="{% url 'authentification:edit' %}"><li>Edit Profil</li></a>
+                <a href="{% url 'authentification:logout' %}"><li>Sign Out</li></a>
+              </ul>
+            </details>
+          </nav>
         </div>
-        
-        <div class="column">
+      </div>
 
-            <div id="info">
+      <div class="column">
+        <div id="info">
+          <div class="rounder">
+            <i class="bi bi-person"></i>
+          </div>
 
-                <div class="rounder">
-                    <i class="bi bi-person"></i>
-                </div>
-
-                <h3>Account Informations</h3>
-                <p><strong>First name:</strong> <span>{{ user.first_name }}</span></p>
-                <p><strong>Last name:</strong> <span>{{ user.last_name }}</span></p>
-                <p><strong>Username:</strong> <span>{{ user.username }}</span></p>
-                <p><strong>Email:</strong> <span>{{ user.email }}</span></p>
-                <p><strong>Profession:</strong> <span>{{ user.profession }}</span></p>
-            </div>
+          <h3>Account Informations</h3>
+          <p>
+            <strong>First name:</strong> <span>{{ user.first_name }}</span>
+          </p>
+          <p>
+            <strong>Last name:</strong> <span>{{ user.last_name }}</span>
+          </p>
+          <p>
+            <strong>Username:</strong> <span>{{ user.username }}</span>
+          </p>
+          <p>
+            <strong>Email:</strong> <span>{{ user.email }}</span>
+          </p>
+          <p>
+            <strong>Profession:</strong> <span>{{ user.profession }}</span>
+          </p>
         </div>
-
+      </div>
     </div>
-</body>
-
+  </body>
 </html>

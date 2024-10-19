@@ -6,7 +6,7 @@ from django.conf import settings
 from  authentification import views
 
 urlpatterns = [
-    path('', views.user_login, name='login'),
+    path('', views.acceuil, name='acceuil'),
     path('admin/', admin.site.urls),
     path('authentification/', include('authentification.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

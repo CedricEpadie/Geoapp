@@ -41,7 +41,6 @@ body::before {
 }
 .logo img {
     width: 40px;
-    opacity: .4;
 }
 .logo {
     width: 60px;

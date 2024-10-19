@@ -5,8 +5,10 @@ from django.conf import settings
 from django.http import FileResponse
 from django.contrib import messages
 from .models import CustomUser
-from .utils import generate_verif_code, send_email_with_html_body, handle_uploaded_file, get_raster_bounds
+from .utils import generate_verif_code, send_email_with_html_body
 
+def acceuil(request):
+    return render(request, 'authentification/acceuil.html')
 
 def register(request):
     if request.method == 'POST':
