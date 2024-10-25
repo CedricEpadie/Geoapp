@@ -1,8 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.decorators import login_required
-from django.conf import settings
-from django.http import FileResponse
 from django.contrib import messages
 from .models import CustomUser
 from .utils import generate_verif_code, send_email_with_html_body
@@ -93,7 +90,7 @@ def user_login(request):
         if user is not None and user.code != 0:
             login(request, user)
             request.session['username'] = user.username
-            return redirect('authentification:index')
+            return redirect('igogek:index')
         else:
             messages.error(request, "Nom d'utilisateur ou mot de passe incorrect")
             
@@ -102,32 +99,3 @@ def user_login(request):
 def user_logout(request):
     logout(request)
     return redirect('authentification:login')
-
-def edit_profil(request):
-    if request.method == 'POST':
-        first_name = request.POST.get('name')
-        last_name = request.POST.get('surname')
-        email = request.POST.get('email')
-        username = request.POST.get('username')
-        profession = request.POST.get('profession')
-        
-        user = get_object_or_404(CustomUser, username=request.session.get('username'))
-        user.first_name = first_name
-        user.last_name = last_name
-        user.email = email
-        user.username = username
-        user.profession = profession
-        
-        request.session['username'] = user.username
-        user.save()
-        return redirect('authentification:edit')
-        
-    return render(request, 'authentification/edit.html')
-
-@login_required
-def index(request):
-    return render(request, 'authentification/index.html')
-
-@login_required
-def profil(request):
-    return render(request, 'authentification/profil.html')

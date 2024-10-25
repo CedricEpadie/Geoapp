@@ -1,0 +1,266 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(36, 36, 36, 1) 100%);
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    color: #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+h1,
+h3,
+h2 {
+    color: #00ffc8;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.logo img {
+    width: 45px;
+    border-radius: 50%;
+}
+
+.logo h1 {
+    font-style: italic;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, #00ffc8, #0d7377, #212121);
+    filter: blur(150px);
+    z-index: -1;
+    animation: rotate 10s infinite linear;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.container-fluid {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+}
+
+#info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 15px;
+    background-color: transparent;
+    box-shadow: 0px 0px 10px #00ffc8;
+    border: 1px solid #444;
+    border-radius: 8px;
+    color: #fff;
+    min-height: 300px;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 100px;
+}
+
+.header a {
+    list-style: none;
+    text-decoration: none;
+}
+
+.header details {
+    position: relative;
+}
+
+.header details ul {
+    position: absolute;
+    right: 100%;
+    top: 0%;
+    transform: translateX(0%);
+    list-style: none;
+    width: 150px;
+    background-color: #2a2a2c;
+    border-radius: 5px;
+    padding: 0;
+    margin: 0;
+    margin-right: 5px;
+}
+
+.header details ul li {
+    padding: 10px 0;
+    cursor: pointer;
+    text-align: center;
+    width: 100%;
+    display: block;
+    color: #fff;
+}
+
+.header details ul a {
+    color: #fff;
+    text-decoration: none;
+    list-style: none;
+}
+
+.header details ul li:hover {
+    box-shadow: 0px 0px 10px #00ffc8;
+}
+
+.header details summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    list-style: none;
+}
+
+.header details summary span {
+    color: #00ffc8;
+}
+
+.header details summary i {
+    font-size: 30px;
+    color: #00ffc8;
+}
+
+.rounder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background-color: transparent;
+    box-shadow: 0px 0px 10px #00ffc8;
+    margin: 10px;
+}
+
+.rounder i {
+    color: #00ffc8;
+    font-size: 100px;
+}
+
+@media (max-width: 768px) {
+    #info {
+        min-height: 200px;
+        margin-top: 20px;
+    }
+}
+
+form {
+    display: flex;
+    margin: auto;
+    margin-block: 30px;
+    width: min(300px, 90vw);
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+form input,
+form button {
+    all: unset;
+    padding: 10px;
+    border-radius: 15px;
+    background-color: #1c1c1e;
+    box-shadow: 0 10px 30px #0005;
+    border: 1px solid #71717188;
+    transition: background-image 0.5s, opacity 0.5s, border 0.5s;
+}
+
+form * {
+    width: 100% !important;
+}
+
+form input {
+    color: #fff;
+}
+
+form button {
+    cursor: pointer;
+    text-align: center;
+}
+
+button:hover {
+    box-shadow: 0px 0px 10px #00ffc8;
+}
+
+form button[type='submit'] {
+    background-color: #fff;
+    color: #1c1c1e;
+}
+
+p a {
+    border-bottom: 1px solid #717171;
+}
+
+input+p {
+    font-size: small;
+    text-align: left;
+}
+
+.sso {
+    margin-bottom: 30px;
+}
+
+.sso+p {
+    font-size: small;
+}
+
+input:invalid:not(:placeholder-shown) {
+    border-color: red;
+    background-image: url(checked_red.png);
+}
+
+input:valid:not(:placeholder-shown) {
+    background-image: url(checked_green.png);
+}
+
+input:invalid:not(:placeholder-shown),
+input:valid:not(:placeholder-shown) {
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-position: calc(100% - 10px);
+}
+
+input:invalid:not(:placeholder-shown)+p {
+    color: #a20e0e;
+}
+
+input:invalid~button[type='submit'] {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+input:focus {
+    box-shadow: 0px 0px 10px #00ffc8;
+}
+
+input:active {
+    box-shadow: 0px 0px 10px #00ffc8;
+}
+
+input:hover {
+    box-shadow: 0px 0px 10px #00ffc8;
+}

@@ -1,0 +1,68 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profil</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Ajout d'icônes Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+    <link rel="shortcut icon" href="{% static 'authentification/LogoTest1.png' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'igogek/profil.css' %}">
+  </head>
+
+  <body>
+    <div class="container-fluid">
+      <div class="header">
+        <a href="{% url 'igogek:index' %}">
+          <div class="logo">
+            <img src="{% static 'authentification/LogoTest1.png' %}" alt="" />
+            <h1>IDoGeK</h1>
+          </div>
+        </a>
+
+        <div class="profil">
+          <nav class="user-menu">
+            <details>
+              <summary>
+                <i class="bi bi-person-circle"></i>
+                <span>{{ user.username }}</span>
+              </summary>
+              <ul>
+                <a href="{% url 'igogek:edit' %}"><li>Edit Profil</li></a>
+                <a href="{% url 'authentification:logout' %}"><li>Sign Out</li></a>
+              </ul>
+            </details>
+          </nav>
+        </div>
+      </div>
+
+      <div class="column">
+        <div id="info">
+          <div class="rounder">
+            <i class="bi bi-person"></i>
+          </div>
+
+          <h3>Account Informations</h3>
+          <p>
+            <strong>First name:</strong> <span>{{ user.first_name }}</span>
+          </p>
+          <p>
+            <strong>Last name:</strong> <span>{{ user.last_name }}</span>
+          </p>
+          <p>
+            <strong>Username:</strong> <span>{{ user.username }}</span>
+          </p>
+          <p>
+            <strong>Email:</strong> <span>{{ user.email }}</span>
+          </p>
+          <p>
+            <strong>Profession:</strong> <span>{{ user.profession }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

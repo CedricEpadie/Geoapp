@@ -30,9 +30,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',
-    'rest_framework',
     'authentification.apps.AuthentificationConfig',
+    'igogek.apps.IgogekConfig',
 ]
 
 MIDDLEWARE = [
@@ -77,7 +76,6 @@ DATABASES = {
     }
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
 
 
 # Password validation
