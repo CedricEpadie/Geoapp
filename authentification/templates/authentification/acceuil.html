@@ -21,18 +21,20 @@
             flex-direction: column;
             font-family: Georgia, 'Times New Roman', Times, serif;
             color: #00ffc8;
-            height: 100vh;
-            width: 100vw;
+            min-height: 100vh;
+            width: 100%;
             background: url("{% static 'authentification/bqckground.png' %}");
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
+            overflow-x: hidden;
         }
 
         header {
             background-color: rgba(0, 0, 0, 0.8);
             transition: 0.3s ease-in-out;
             padding: 1rem 0;
+            width: 100%;
         }
 
         a {
@@ -49,8 +51,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 98%;
+            width: 90%;
+            max-width: 1200px;
             margin: 0 auto;
+            flex-wrap: wrap;
         }
 
         .logo {
@@ -62,7 +66,9 @@
 
         .logo img {
             width: 45px;
+            height: 45px;
             border-radius: 50%;
+            object-fit: cover;
         }
 
         main {
@@ -70,8 +76,10 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 50%;
-            gap: 10px;
+            flex: 1;
+            padding: 2rem 1rem;
+            text-align: center;
+            gap: 20px;
         }
 
         header:hover {
@@ -81,9 +89,7 @@
         footer {
             background-color: rgba(0, 0, 0, 0.8);
             padding: 40px 0;
-            text-align: center;
-            position: relative;
-            margin-top: auto;
+            width: 100%;
             transition: 0.3s ease-in-out;
         }
 
@@ -91,34 +97,46 @@
             background-color: rgba(20, 20, 20, 1);
         }
 
-        footer .footer-container div {
+        .footer-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 2rem;
+            padding: 0 1rem;
+        }
+
+        .footer-section {
             flex: 1;
-            margin: 10px;
+            min-width: 250px;
+            margin-bottom: 1.5rem;
         }
 
         .btn {
             background-color: transparent;
             border: 1px solid #00ffc8;
             color: #00ffc8;
-            padding: 10px 15px;
-            margin-bottom: 15px;
+            padding: 10px 20px;
+            margin: 10px 0;
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center;
+            font-size: 1rem;
         }
 
         .btn:hover {
             background-color: #00ffc8;
             color: rgba(20, 20, 20, 1);
+            transform: translateY(-2px);
         }
 
         footer h4 {
             font-weight: 600;
             font-size: 18px;
             margin-bottom: 15px;
+            color: #00ffc8;
         }
 
         footer ul {
@@ -141,13 +159,13 @@
             color: #fff;
         }
 
-        footer .social-icons {
+        .socials {
             display: flex;
-            justify-content: center;
-            padding-top: 20px;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
 
-        footer .social-icons a {
+        .socials a {
             background-color: #444;
             color: #fff;
             border-radius: 50%;
@@ -156,55 +174,92 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 0 10px;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
         }
 
+        .socials a:hover {
+            background-color: #00ffc8;
+            color: #000;
+            transform: translateY(-3px);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
         footer p {
             color: #999;
-            font-size: 12px;
-            margin-top: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Media Queries */
+        @media screen and (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            main h1 {
+                font-size: 1.5rem;
+            }
+
+            .footer-section {
+                flex: 100%;
+                text-align: center;
+            }
+
+            .socials {
+                justify-content: center;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .logo h1 {
+                font-size: 1.5rem;
+            }
+
+            .btn {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+
+            footer {
+                padding: 20px 0;
+            }
+
+            .footer-section {
+                padding: 0 1rem;
+            }
         }
     </style>
 </head>
 
 <body>
-
     <header id="header">
-
         <div class="container">
-
             <div class="logo">
-
                 <img src="{% static 'authentification/LogoTest1.png' %}" alt="Logo">
                 <h1>IDoGeK</h1>
-
             </div>
-
             <a href="{% url 'authentification:login' %}" class="btn">Get Started</a>
-
         </div>
-
     </header>
 
     <main>
-
-        <h1>
-            Bienvenue sur IDoGeK
-        </h1>
-
+        <h1>Bienvenue sur IDoGeK</h1>
         <a href="{% url 'authentification:login' %}" class="btn">Get Started</a>
-
     </main>
 
     <footer>
-
         <div class="container">
             <div class="footer-section">
                 <h4>À propos de nous</h4>
-                <p>Nous sommes une communauté de tontine qui soutient ses membres grâce à des contributions mutuelles.
-                </p>
+                <p>Nous sommes une communauté de tontine qui soutient ses membres grâce à des contributions mutuelles.</p>
             </div>
             <div class="footer-section">
                 <h4>Liens utiles</h4>
@@ -236,7 +291,6 @@
         <div class="footer-bottom">
             <p>&copy; 2024 IDoGeK. Tous droits réservés.</p>
         </div>
-
     </footer>
 </body>
 
