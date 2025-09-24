@@ -30,7 +30,7 @@ def index(request):
         request,
         'igogek/index.html',
         {
-            'api_key': 'pk.eyJ1IjoiY2VkcmljZXBhZGllIiwiYSI6ImNtMXE3aTRsNDBibTAycG9qajR5YjFjdm4ifQ.uMkRry3szVbv-cKeqJDBtg'
+            'api_key': 'pk.eyJ1IjoiY2VkcmljZXBhZGllIiwiYSI6ImNtZTBiNndmYzAyeTAybG9mdzNtbzJ0Z3kifQ.aYWF_9k0E-nk1Y4SEIdgGw'
         }
     )
 @login_required

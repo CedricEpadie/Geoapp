@@ -40,13 +40,13 @@ def user_login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
         
-        if user is not None:
+        try:
+            user = CustomUser.objects.get(username=username, password=password)
             login(request, user)
             request.session['username'] = user.username
             return redirect('igogek:index')
-        else:
+        except CustomUser.DoesNotExist:
             messages.error(request, "Nom d'utilisateur ou mot de passe incorrect")
             
     return render(request, 'authentification/login.html')
