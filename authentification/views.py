@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from .models import CustomUser
-from .utils import generate_verif_code, send_email_with_html_body
 
 def acceuil(request):
     return render(request, 'authentification/acceuil.html')
@@ -43,7 +42,7 @@ def user_login(request):
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         
-        if user is not None and user.code != 0:
+        if user is not None:
             login(request, user)
             request.session['username'] = user.username
             return redirect('igogek:index')

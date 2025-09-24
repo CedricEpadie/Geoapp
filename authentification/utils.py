@@ -28,11 +28,3 @@ def send_email_with_html_body(subjet:str, receivers:list, template:str, context:
         logger.error(e)
         
     return False
-
-def generate_verif_code():
-    code = ''
-    
-    for i in range(6):
-        code += str(random.randint(0, 9))
-    
-    return int(code)
