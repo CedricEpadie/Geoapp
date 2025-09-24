@@ -36,30 +36,7 @@ def register(request):
         if CustomUser.objects.filter(email=email).exists():
             return render(request, 'authentification/register.html', {'error': 'L’adresse email est déjà utilisée.'})
 
-        try:
-            has_send = send_email_with_html_body(
-                subjet=subjet,
-                receivers=receivers,
-                template=template,
-                context=context
-            )
-            
-            if has_send:
-                user = CustomUser.objects.create_user(
-                    first_name=first_name,
-                    last_name=last_name,
-                    email=email,
-                    username=username,
-                    password=password,
-                    profession=profession,
-                )
-                request.session['id'] = user.id
-                request.session['code'] = code
-                return redirect('authentification:code')
-            else:
-                return render(request, 'authentification/register.html', {'error': 'Une erreur s\'est produite'})
-        except Exception as e:
-            return render(request, 'authentification/register.html', {'error': str(e)})
+        return redirect('authentification:login')
 
     return render(request, 'authentification/register.html')
 
